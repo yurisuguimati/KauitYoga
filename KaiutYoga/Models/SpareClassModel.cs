@@ -27,9 +27,12 @@ namespace KaiutYoga.Models
         public string GetMilliseconds
         {
             get {
+                
+                DateTime dt = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+                return (this.NewDate - dt).TotalMilliseconds.ToString();
+                //return this.NewDate.ToString("yyyy-MM-ddTHH:mm:ss");
                 //DateTime dt = new DateTime(1970, 1, 1, 0, 0, 0, 0);
                 //return TimeZoneInfo.ConvertTimeFromUtc(this.NewDate, TimeZoneInfo.Local).ToString("yyyy-MM-ddTHH:mm:ss");
-                return this.NewDate.ToString("yyyy-MM-ddTHH:mm:ss");
                 //return this.NewDate.Year + "-" + this.NewDate.Month + "-" + this.NewDate.Day + "T" + this.NewDate.Hour + ":" + this.NewDate.Minute + ":00";
                 //return (this.Date - dt).TotalMilliseconds;
             }

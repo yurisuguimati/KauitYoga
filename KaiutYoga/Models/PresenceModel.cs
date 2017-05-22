@@ -56,9 +56,9 @@ namespace KaiutYoga.Models
         {
             get
             {
-                DateTime dt = new DateTime(1970, 1, 1, 0, 0, 0, 0);
                 //return this.Date.ToString("yyyy-MM-ddTHH:mm:ss");
                 //return this.Date.Year + "-" + this.Date. + "-" + this.Date.Day + "T" + this.Date.Hour + ":" + this.Date.Minute + ":00";
+                DateTime dt = new DateTime(1970, 1, 1, 0, 0, 0, 0);
                 return (this.Date - dt).TotalMilliseconds.ToString();
             }
             set { }
