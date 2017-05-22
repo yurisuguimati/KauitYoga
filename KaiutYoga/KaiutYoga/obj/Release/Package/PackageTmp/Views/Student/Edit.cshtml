@@ -1,0 +1,258 @@
+﻿@model KaiutYoga.Models.StudentModel
+
+@{
+    
+    ViewBag.Title = "Edição de aluno";
+}
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+
+    <div class="row">
+        <div class="col-md-3">
+            <h3>Edição de aluno</h3>
+            @Html.HiddenFor(model => model.Id)
+
+            <div class="editor-label">
+                @Html.LabelFor(model => model.FirstName)
+            </div>
+            <div class="editor-field" style="padding-bottom:5px">
+                @Html.EditorFor(model => model.FirstName, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="editor-label">
+                @Html.LabelFor(model => model.LastName)
+            </div>
+            <div class="editor-field" style="padding-bottom:5px">
+                @Html.EditorFor(model => model.LastName, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="editor-label">
+                @Html.LabelFor(model => model.Active)
+            </div>
+            <div class="editor-field" style="padding-bottom:5px">
+                @Html.EditorFor(model => model.Active)
+                @Html.ValidationMessageFor(model => model.Active, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="editor-label">
+                @Html.LabelFor(model => model.RegisterDate)
+            </div>
+            <div class="editor-field" style="padding-bottom:5px">
+                @Html.EditorFor(model => model.RegisterDate, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+            </div>
+
+            <div class="editor-label">
+                @Html.LabelFor(model => model.Gender)
+            </div>
+            <div class="editor-field" style="padding-bottom:5px">
+                @Html.EnumDropDownListFor(model => model.Gender, null, htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Gender, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="editor-label">
+                @Html.LabelFor(model => model.BirthDate)
+            </div>
+            <div class="editor-field" style="padding-bottom:5px">
+                @Html.EditorFor(model => model.BirthDate, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.BirthDate, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="editor-label">
+                @Html.LabelFor(model => model.PlanId)
+            </div>
+            <div class="editor-field">
+                @Html.DropDownList("PlanId", null, htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.PlanId, "", new { @class = "text-danger" })
+            </div>
+
+            @Html.Partial("_CalendarSubtitle")
+
+            <input type="submit" value="Salvar" class="btn btn-primary" onclick="changed=false"/>
+            @Html.ActionLink("Voltar", "Index", null, new { @class = "btn btn-default" })
+            
+        </div>
+        <div class="col-md-9">
+            <div id="tabs" style="margin-top:15px; padding-left:3px; padding-right:3px" class="row-fluid col-md-12">
+                <ul>
+                    <li><a href="#calendar">Agenda de aulas</a></li>
+                    <li><a href="#additionalInfo">Informações adicionais</a></li>
+                    @if (Model.AmountMissedClasses() > 0)
+                    {
+                        <li><a href="#missedClasses">Faltas</a></li>
+                    }
+                    @if (!Model.Plan.IsTrial)
+                    {
+                        <li><a href="#payments">Pagamentos</a></li>
+                    }
+                </ul>
+                <div id="calendar" class="row-fluid"></div>
+                <div id="missedClasses" class="row-fluid" style="display:inline-block">
+                    @if (Model.AmountMissedClasses() > 0)
+                    {
+                        @Html.Partial("_StudentMissedClasses", Model)
+                    }
+                </div>
+                @if (!Model.Plan.IsTrial)
+                {
+                    <div id="payments" class="row-fluid">
+                        @Html.Partial("_StudentPayment", Model.Payments)
+                    </div>
+                }
+                <div id="additionalInfo" class="row-fluid col-md-12" style="display:inline-block">
+                    <div class="col-md-6">
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.Address)
+                        </div>
+                        <div class="editor-field">
+                            @Html.EditorFor(model => model.Address, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.Neighborhood)
+                        </div>
+                        <div class="editor-field">
+                            @Html.EditorFor(model => model.Neighborhood, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Neighborhood, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.City)
+                        </div>
+                        <div class="editor-field">
+                            @Html.EditorFor(model => model.City, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.City, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.CEP)
+                        </div>
+                        <div class="editor-field">
+                            @Html.EditorFor(model => model.CEP, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.CEP, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.RG)
+                        </div>
+                        <div class="editor-field">
+                            @Html.EditorFor(model => model.RG, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.RG, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.CPF)
+                        </div>
+                        <div class="editor-field">
+                            @Html.EditorFor(model => model.CPF, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.CPF, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.MaritalStatus)
+                        </div>
+                        <div class="editor-field">
+                            @Html.EnumDropDownListFor(model => model.MaritalStatus, null, htmlAttributes: new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.MaritalStatus, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.Occupation)
+                        </div>
+                        <div class="editor-field">
+                            @Html.EditorFor(model => model.Occupation, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Occupation, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.Phone)
+                        </div>
+                        <div class="editor-field">
+                            @Html.EditorFor(model => model.Phone, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.CelPhone)
+                        </div>
+                        <div class="editor-field">
+                            @Html.EditorFor(model => model.CelPhone, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.CelPhone, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.Email)
+                        </div>
+                        <div class="editor-field">
+                            @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.Observations)
+                        </div>
+                        <div class="editor-multiline-field">
+                            @Html.EditorFor(model => model.Observations, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Observations, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+<script>
+
+    $(function () {
+        $("#tabs").tabs();
+    });
+
+    $("*").on("input", function () {
+        changed = true;
+    });
+
+    $('#PlanId').change(function () {
+        /* Get the selected value of dropdownlist */
+        var selectedID = $(this).val();
+        /* Request the partial view with .get request. */
+        if (selectedID != "") {
+            $.ajax({
+                type: 'post',
+                url: window.applicationBaseUrl+"Student/GetClassCalendar",
+                dataType: "html",
+                data: "planId=" + selectedID + "&studentId=@Model.Id",
+                contentType: "application/x-www-form-urlencoded;charset=utf-8",
+                success: function (result) {
+                    $('#calendar').html(result);
+                }
+            })
+        }
+        else {
+            $('#calendar').html("");
+        }
+    });
+
+    $.ajax({
+        type: 'post',
+        url: window.applicationBaseUrl+"Student/GetClassCalendar",
+        dataType: "html",
+        data: "planId=@Model.PlanId&studentId=@Model.Id",
+        contentType: "application/x-www-form-urlencoded;charset=utf-8",
+        success: function (result) {
+            $('#calendar').html(result);
+        }
+    })
+
+    $(window).bind('beforeunload', function () {
+        if (changed) {
+            return 'Você fez modificações no perfil do aluno e não as salvou, deseja mesmo sair?';
+        }     
+    });
+
+</script>

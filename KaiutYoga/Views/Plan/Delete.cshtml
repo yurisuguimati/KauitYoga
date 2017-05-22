@@ -1,0 +1,63 @@
+﻿@model KaiutYoga.Models.PlanModel
+
+@{
+    ViewBag.Title = "Apagar plano";
+}
+
+<h2>Planos de aula</h2>
+
+<div class="form-horizontal">
+    <h4>Apagar</h4>
+    <hr />
+    <h3>Realmente deseja apagar este registro?</h3>
+
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Frequency, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.Frequency, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Price, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.Price, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.Label("Dia de pagamento", htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.LastDayToPayWithDiscount, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.Label("Experimental", htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10" style="padding-left:15px; padding-top:6px">
+            @Html.EditorFor(model => model.IsTrial, new { htmlAttributes = new { @readonly = "true", @disabled="true" } })
+        </div>
+    </div>
+
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Apagar" class="btn btn-default" />
+            </div>
+        </div>
+    }
+</div>
+
+<div>
+    @Html.ActionLink("Voltar a lista de planos de aula", "Index")
+</div>

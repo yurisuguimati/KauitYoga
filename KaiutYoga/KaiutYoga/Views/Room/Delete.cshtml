@@ -1,0 +1,47 @@
+﻿@model KaiutYoga.Models.RoomModel
+
+@{
+    ViewBag.Title = "Apagar sala";
+}
+
+<h2>Salas de aula</h2>
+
+<div class="form-horizontal">
+    <h4>Apagar</h4>
+    <hr />
+    <h3>Realmente deseja apagar este registro?</h3>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Capacity, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.Capacity, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.SpareCapacity, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.SpareCapacity, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+        </div>
+    </div>
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="submit" value="Apagar" class="btn btn-default" />
+        </div>
+    </div>
+}
+</div>
+
+<div>
+    @Html.ActionLink("Voltar a lista de salas", "Index")
+</div>

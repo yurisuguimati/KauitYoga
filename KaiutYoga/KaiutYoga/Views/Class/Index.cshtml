@@ -1,0 +1,82 @@
+﻿@model PagedList.IPagedList<KaiutYoga.Models.ClassModel>
+@using PagedList.Mvc;
+
+
+@{
+    ViewBag.Title = "Lista de aulas";
+}
+
+<h2>Horário de aulas</h2>
+
+<p>
+    <div class="form-inline">
+        <div class="form-group">
+            @using (Html.BeginForm("Index", "Class", FormMethod.Get))
+            {
+                <select id="searchDayOfWeek" name="searchDayOfWeek" onchange="this.form.submit();" class="form-control">
+                    <option value="">Dia da semana</option>
+                    <option value="@DayOfWeek.Sunday">Domingo</option>
+                    <option value="@DayOfWeek.Monday">Segunda-feira</option>
+                    <option value="@DayOfWeek.Tuesday">Terça-feira</option>
+                    <option value="@DayOfWeek.Wednesday">Quarta-feira</option>
+                    <option value="@DayOfWeek.Thursday">Quinta-feira</option>
+                    <option value="@DayOfWeek.Friday">Sexta-feira</option>
+                    <option value="@DayOfWeek.Saturday">Sábado</option>
+                </select>
+            }
+        </div>
+        <button class="btn btn-primary" onclick="location.href='@Url.Action("Create")'"><i class="fa fa-plus" title="Editar aluno"></i> Novo registro</button>
+        <button class="btn btn-info" onclick="location.href='@Url.Action("Batch")'"><i class="fa fa-plus" title="Editar aluno"></i> Lote de aulas</button>
+    </div>
+</p>
+<script>
+    $("#searchDayOfWeek").val("@ViewBag.CurrentFilter");
+</script>
+<div>
+    @Html.PagedListPager(Model, page => Url.Action("Index", new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter }))
+</div>
+<div id="no-more-tables">
+    <table class="table col-sm-12 table-striped table-condensed cf">
+        <thead class="cf">
+            <tr>
+                <th>
+                    @Html.ActionLink("Nome", "Index", new { sortOrder = ViewBag.ProfessorSortParm, currentFilter = ViewBag.CurrentFilter })
+                </th>
+                <th>
+                    @Html.ActionLink("Sala", "Index", new { sortOrder = ViewBag.RoomSortParm, currentFilter = ViewBag.CurrentFilter })
+                </th>
+                <th>
+                    @Html.ActionLink("Dia da semana", "Index", new { sortOrder = ViewBag.DaySortParm, currentFilter = ViewBag.CurrentFilter })
+                </th>
+                <th>
+                    @Html.ActionLink("Horário", "Index", new { sortOrder = ViewBag.TimeSortParm, currentFilter = ViewBag.CurrentFilter })
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td data-title="Professor">
+                        @Html.DisplayFor(modelItem => item.Professor.Name)
+                    </td>
+                    <td data-title="Sala">
+                        @Html.DisplayFor(modelItem => item.Room.Name)
+                    </td>
+                    <td data-title="Dia da semana">
+                        @{ string dayOfWeek = new System.Globalization.CultureInfo("pt-BR").DateTimeFormat.GetDayName(item.Day).ToString();}
+                        @Html.DisplayFor(modelItem => dayOfWeek)
+                    </td>
+                    <td data-title="Horário">
+                        @Html.DisplayFor(modelItem => item.SelectedTime)
+                    </td>
+                    <td data-title="" align="right">
+                        <button class="btn btn-danger btn-sm" onclick="location.href='@Url.Action("Delete",new { id=item.Id})'"><i class="fa fa-trash" title="Apagar horário"></i> Apagar</button>
+                        <button class="btn btn-warning btn-sm" onclick="location.href='@Url.Action("Edit", new { id = item.Id })'"><i class="fa fa-pencil" title="Editar horário"></i> Editar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

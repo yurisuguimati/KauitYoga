@@ -1,0 +1,134 @@
+﻿@model PagedList.IPagedList<KaiutYoga.Models.PaymentModel>
+@using PagedList.Mvc;
+
+@{
+    ViewBag.Title = "Lista de pagamentos";
+}
+
+<h2>Pagamentos</h2>
+<p>
+<div class="form-inline">
+    <div class="form-group">
+        @using (Html.BeginForm("Index", "Payment", FormMethod.Get))
+        {
+            <select onchange="this.form.submit();" id="searchMonth" name="searchMonth" class="form-control">
+                <option value="">Mês</option>
+                <option value="1">Janeiro</option>
+                <option value="2">Fevereiro</option>
+                <option value="3">Março</option>
+                <option value="4">Abril</option>
+                <option value="5">Maio</option>
+                <option value="6">Junho</option>
+                <option value="7">Julho</option>
+                <option value="8">Agosto</option>
+                <option value="9">Setembro</option>
+                <option value="10">Outubro</option>
+                <option value="11">Novembro</option>
+                <option value="12">Dezembro</option>
+            </select>
+
+            <select onchange="this.form.submit();" id="searchYear" name="searchYear" class="form-control">
+                <option value="">Ano</option>
+                @for (int i = 2015; i <= DateTime.Now.Year; i++)
+                {
+                    <option value="@i">@i</option>
+                }
+            </select>
+
+            @Html.TextBox("searchName", ViewBag.searchName as string, new { @class = "form-control", @placeholder = "Nome ou sobrenome", @onchange = "this.form.submit();" })
+            
+            <button type="submit" id="btnsubmit" class="btn btn-default"><i class="fa fa-search" title="Pesquisar"></i> Pesquisar</button>
+        }
+    </div>
+    <button class="btn btn-primary" onclick="location.href='@Url.Action("Create")'"><i class="fa fa-plus" title="Novo pagamento"></i> Novo registro</button>
+    
+    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#createMissingPaymentsModal"><i class="fa fa-plus" title="Criar todos pagamentos do mes"></i> Criar pagamentos do mes</button>
+</div>
+</p>
+<script>
+    $("#searchMonth").val("@ViewBag.searchMonth");
+    $("#searchYear").val("@ViewBag.searchYear");
+</script>
+<div>
+    @Html.PagedListPager(Model, page => Url.Action("Index", new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter, searchName = ViewBag.searchName, ViewBag.searchMonth, searchYear = ViewBag.searchYear }))
+</div>
+<div id="no-more-tables">
+    <table class="table col-sm-12 table-striped table-condensed cf">
+        <thead class="cf">
+            <tr>
+                <th>@Html.ActionLink("Aluno", "Index", new { sortOrder = ViewBag.NameSortParm, currentFilter = ViewBag.CurrentFilter })</th>
+                <th>@Html.ActionLink("Plano", "Index", new { sortOrder = ViewBag.PlanSortParm, currentFilter = ViewBag.CurrentFilter })</th>
+                <th>@Html.ActionLink("Notificado", "Index", new { sortOrder = ViewBag.NotifiedSortParm, currentFilter = ViewBag.CurrentFilter })</th>
+                <th>@Html.ActionLink("Pago", "Index", new { sortOrder = ViewBag.PaidSortParm, currentFilter = ViewBag.CurrentFilter })</th>
+                <th>Valor pago</th>
+                <th>Mensalidade</th>
+                <th>@Html.ActionLink("Período", "Index", new { sortOrder = ViewBag.PeriodSortParm, currentFilter = ViewBag.CurrentFilter })</th>
+                <th>@Html.ActionLink("Vencimento", "Index", new { sortOrder = ViewBag.DueDateSortPam, currentFilter = ViewBag.CurrentFilter })</th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (KaiutYoga.Models.PaymentModel payment in Model)
+            {
+                <tr>
+                    <td data-title="Aluno">@payment.Student.FirstName @payment.Student.LastName</td>
+                    <td data-title="Plano">@payment.Plan.Name</td>
+                    <td data-title="Notificado">
+                        @if (payment.Notified)
+                        {
+                            <i class="fa fa-check-square button" title="Notificado sobre o pagamento"></i>
+                        }
+                        else
+                        {
+                            <i class="fa fa-square button"></i>
+                        }
+                    </td>
+                    <td data-title="Pago">
+                        @if (payment.DatePaid != null)
+                        {
+                            <i class="fa fa-check-square button"></i>
+                        }
+                        else
+                        {
+                            <i class="fa fa-square button" title="Editar aluno"></i>
+                        }
+                    </td>
+                    <td data-title="Valor pago">@payment.AmountPaid</td>
+                    <td data-title="Mensalidade">@payment.AmountToPay.ToString("0.00")</td>
+                    <td data-title="Período">@payment.Period</td>
+                    <td data-title="Vencimento">@payment.DueDate.ToString("dd/MM/yyyy")</td>
+                    <td data-title="" align="right">
+                        @if (payment.DatePaid == null)
+                        {
+                            <button class="btn btn-danger btn-sm" onclick="location.href='@Url.Action("Delete","Payment",new { id=payment.Id})'"><i class="fa fa-trash" title="Apagar pagamento"></i> Apagar</button>
+                        }
+                        <button class="btn btn-warning btn-sm" onclick="location.href='@Url.Action("Edit", "Payment", new { id = payment.Id })'"><i class="fa fa-pencil" title="Editar pagamento"></i> Editar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="createMissingPaymentsModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Criar todos os pagamentos do mês?</h4>
+            </div>
+            <div class="modal-body">
+                <p>Você criará um pagamento com informações basicas (valores, datas e plano de aula) para cada aluno que ainda não possui um registro.</p>
+                <br />
+                <p>Deseja continuar?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Não</button>
+                <button type="button" class="btn btn-warning" onclick="location.href='@Url.Action("CreateMissing")'">Sim! Crie todos pagamentos</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+

@@ -1,0 +1,11 @@
+﻿@{
+    ViewBag.Title = "Inicio";
+}
+@if (Request.IsAuthenticated)
+{
+    <br />
+    
+    <div>
+        @Html.Partial("_ClassesCalendar")
+    </div>
+}

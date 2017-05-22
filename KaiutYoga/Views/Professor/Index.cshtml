@@ -1,0 +1,65 @@
+﻿@model IEnumerable<KaiutYoga.Models.ProfessorModel>
+
+@{
+    ViewBag.Title = "Lista de professores";
+}
+
+<h2>Professores</h2>
+
+<p>
+    <button class="btn btn-primary " onclick="location.href='@Url.Action("Create")'"><i class="fa fa-plus" title="Novo aluno"></i> Novo registro</button>
+</p>
+<div id="no-more-tables">
+    <table class="table col-sm-12 table-striped table-condensed cf">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td data-title="@Html.DisplayNameFor(model => model.Name)">
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td data-title="" align="right">
+                        <button class="btn btn-danger btn-sm" onclick="location.href='@Url.Action("Delete",new { id=item.Id})'"><i class="fa fa-trash" title="Apagar professor"></i> Apagar</button>
+                        <button class="btn btn-warning btn-sm" onclick="location.href='@Url.Action("Edit", new { id = item.Id })'"><i class="fa fa-pencil" title="Editar professor"></i> Editar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="errorMsgModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Ops, ocorreu um erro!</h4>
+            </div>
+            <div class="modal-body">
+                <p>@TempData["ErrorContent"]</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Ok, entendi!</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script>
+    $(document).ready(function () {
+        @if (TempData["ErrorContent"] != null)
+        {
+            <text>$('#errorMsgModal').modal('show');</text>
+        }
+    })
+</script>
+
+

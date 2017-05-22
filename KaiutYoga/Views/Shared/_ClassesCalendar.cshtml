@@ -1,0 +1,122 @@
+﻿@{
+    KaiutYoga.Models.KaiutYogaContext context = new KaiutYoga.Models.KaiutYogaContext();
+    KaiutYoga.Models.ClassModel cm = new KaiutYoga.Models.ClassModel();
+    List<KaiutYoga.Models.ClassModel> listclassmodel = cm.GetClasses(context).ToList();
+    List<KaiutYoga.Models.PresenceModel> listpresencemodel = context.PresenceModels.ToList();
+    //IEnumerable<IGrouping<DateTime, string>> listspareclassmodel = context.SpareClassModels.GroupBy(c => c.NewDate, c => c.GetMilliseconds).ToList();
+    List<KaiutYoga.Models.StudentModel> liststudentmodel = context.StudentModels.Include("Classes").ToList();
+
+    <script>
+
+        function GenerateEvents(){
+            createdEvents = [
+                @foreach (KaiutYoga.Models.ClassModel classmodel in listclassmodel)
+                {
+                    int enroledStudents = classmodel.AmountEnroledStudents();
+                    <text>
+                    {
+                        title: 'Inscritos: @(enroledStudents - classmodel.ReplacementStudents().Count - classmodel.TrialStudents().Count)/@classmodel.Capacity',
+                        amountWeeklyStudents: @classmodel.WeeklyStudents(liststudentmodel).Count,
+                        capacity: @classmodel.Capacity,
+                        enroled: @enroledStudents,
+                        start: '@classmodel.SelectedTime',
+                        backgroundColor : '@classmodel.ClassColor()',
+                        borderColor : '@classmodel.ClassColor()',
+                        classId: '@classmodel.Id',
+                        allDay: false,
+                        dow: [@Convert.ToInt16(classmodel.Day)]
+                    }
+                    </text>
+                    if (classmodel.Id != listclassmodel[listclassmodel.Count - 1].Id)
+                    {
+                        <text>,</text>
+                    }
+                }
+            ]
+
+            @if (listpresencemodel != null)
+            {
+                foreach (KaiutYoga.Models.PresenceModel pm in listpresencemodel)
+                {
+                    <text>blockedSpareEvents.push(@pm.ConvertToMilliseconds);</text>
+                }
+            }
+        }
+
+        $(document).ready(function () {
+            GenerateEvents("calendar");
+
+            calendarHeight = window.innerHeight/2+272;
+            if (calendarHeight < 450)
+                calendarHeight = 450;
+
+            $('#calendar').fullCalendar({
+                header: {
+                    right: 'agendaWeek,agendaDay',//'month,agendaWeek,agendaDay',
+                    center: 'title' , //'center:'title',
+                    left: 'today prev,next' }, // buttons for switching between views
+                timeFormat: 'H:mm',
+                views:{
+                    month:{
+                        columnFormat:'ddd - MMM'
+                    },
+                },
+                defaultView: 'agendaWeek',
+                minTime: "07:00:00",
+                maxTime: "21:00:00",
+                theme:true,
+                defaultTimedEventDuration: '01:00:00',
+                fixedWeekCount : false,
+                allDaySlot: false,
+                axisFormat: 'H:mm',
+                hiddenDays:[0],
+                height:"auto",
+                eventSources: [createdEvents],
+                viewRender: function(view, element) {
+                    $('#calendar').fullCalendar('removeEventSource',createdEvents);
+                    $('#calendar').fullCalendar('refetchEvents');
+                    $('#calendar').fullCalendar('addEventSource',createdEvents);
+                    CorrectEventTitle('calendar');
+                    GetAndPaintEventsWithPresence('calendar');
+                },
+                eventMouseover: function(calEvent, jsEvent) {
+                    document.body.style.cursor = "pointer";
+                    $.ajax({
+                        type: 'get',
+                        url: window.applicationBaseUrl+"Class/GetInformation",
+                        dataType: "html",
+                        data: "classId=" + calEvent.classId + "&date=" + calEvent.start,
+                        contentType: "application/x-www-form-urlencoded;charset=utf-8",
+                        async: false,
+                        success: function (result) {
+                            tooltip = '<div class="calendarTooltip" style="display: none">'+result+'</div>';
+                        },
+                        error: function (e){
+                            tooltip = e;
+                        }
+                    });
+
+                    $("body").append(tooltip);
+                    $(this).mouseover(function(e) {
+                        $(this).css('z-index', 10000);
+                        $('.calendarTooltip').show();
+                        $('.calendarTooltip').fadeIn('500');
+                        $('.calendarTooltip').fadeTo('10', 1.9);
+                    }).mousemove(function(e) {
+                        ToolTipPosition(e.pageY,e.pageX);
+                    });
+                },
+
+                eventMouseout: function(calEvent, jsEvent) {
+                    $(this).css('z-index', 8);
+                    document.body.style.cursor = "auto";
+                    $('.calendarTooltip').remove();
+                },
+                eventClick: function (event){
+                    window.open(window.applicationBaseUrl+"Class/Overview?id="+event.classId+"&date="+event.start,"_self");
+                }
+            })
+        });
+    </script>
+    <div id='calendar'></div>
+}

@@ -1,0 +1,47 @@
+﻿@model KaiutYoga.Models.StudentModel
+
+<div>
+    @{
+        if (Model.AmountMissedWeeklyClasses() > 0)
+        {
+            @:Aulas semanais<br />
+            <div class="row-fluid col-md-12">
+                @foreach (KaiutYoga.Models.PresenceModel pm in Model.MissedWeeklyClasses().OrderBy(c => c.Date))
+                {
+                    <div class="col-md-6" style="margin-bottom:15px">
+                        @Html.Partial("_StudentMissedClass", pm)
+                    </div>
+                }
+            </div>
+        }
+        if (Model.Plan.IsTrial && Model.AmountMissedTrialClasses() > 0)
+        {
+            @:Aulas experimentais<br />
+            <div class="row-fluid">
+                @foreach (KaiutYoga.Models.PresenceModel pm in Model.MissedTrialClasses().OrderBy(c => c.Date))
+                {
+                    <div class="col-md-6" style="margin-bottom:15px">
+                        @Html.Partial("_StudentMissedClass", pm)
+                    </div>
+                }
+            </div>
+        }
+
+
+        if (Model.AmountMissedReplacementClasses() > 0)
+        {
+            @:Aulas de reposição<br />
+            <div class="row-fluid">
+                @foreach (KaiutYoga.Models.PresenceModel pm in Model.MissedReplacementClasses().OrderBy(c => c.Date))
+                {
+                    <div class="col-md-6" style="margin-bottom:15px">
+                        @Html.Partial("_StudentMissedClass", pm)
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+
+
+

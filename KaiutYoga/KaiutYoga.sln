@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KaiutYoga", "KaiutYoga\KaiutYoga.csproj", "{421C85D9-DD9B-438D-82A6-8E13FA5DDB4C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{877E7F97-26E7-483E-8263-E491882EBD4C}"
+	ProjectSection(SolutionItems) = preProject
+		Grant.sql = Grant.sql
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+		STAGE|Any CPU = STAGE|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{421C85D9-DD9B-438D-82A6-8E13FA5DDB4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{421C85D9-DD9B-438D-82A6-8E13FA5DDB4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{421C85D9-DD9B-438D-82A6-8E13FA5DDB4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{421C85D9-DD9B-438D-82A6-8E13FA5DDB4C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{421C85D9-DD9B-438D-82A6-8E13FA5DDB4C}.STAGE|Any CPU.ActiveCfg = STAGE|Any CPU
+		{421C85D9-DD9B-438D-82A6-8E13FA5DDB4C}.STAGE|Any CPU.Build.0 = STAGE|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

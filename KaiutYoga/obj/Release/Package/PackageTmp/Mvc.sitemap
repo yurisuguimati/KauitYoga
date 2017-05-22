@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<mvcSiteMap xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns="http://mvcsitemap.codeplex.com/schemas/MvcSiteMap-File-4.0"
+            xsi:schemaLocation="http://mvcsitemap.codeplex.com/schemas/MvcSiteMap-File-4.0 MvcSiteMapSchema.xsd">
+
+  <mvcSiteMapNode title="Kaiut Yoga Boqueirão" controller="Home" action="Index">
+    <mvcSiteMapNode title="Cadastros" clickable="false">
+      <mvcSiteMapNode title="Salas" controller="Room" action="Index" />
+      <mvcSiteMapNode title="Professores" controller="Professor" action="Index" />
+      <mvcSiteMapNode title="Planos de aula" controller="Plan" action="Index" />
+    </mvcSiteMapNode>
+    <mvcSiteMapNode title="Aulas" controller="CLass" action="Index" />
+    <mvcSiteMapNode title="Alunos" controller="Student" action="Index" />
+    <mvcSiteMapNode title="Pagamentos" controller="Payment" action="Index" />
+  </mvcSiteMapNode>
+
+</mvcSiteMap>
+

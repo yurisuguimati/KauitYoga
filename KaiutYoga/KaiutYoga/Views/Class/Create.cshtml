@@ -1,0 +1,106 @@
+﻿@model KaiutYoga.Models.ClassModel
+
+@{
+    KaiutYoga.Models.KaiutYogaContext context = new KaiutYoga.Models.KaiutYogaContext();
+    int amountProfessor = context.ProfessorModels.Count();
+    int amountRoom = context.RoomModels.Count();
+
+    ViewBag.Title = "Cadastro de aula";
+}
+
+<h2>Aulas</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+
+
+    <div class="form-horizontal">
+        <h4>Cadastro</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ProfessorId, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("ProfessorId", null, htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.ProfessorId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.RoomId, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("RoomId", null, htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.RoomId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Time, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("SelectedTime", Model.Time, htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Time, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Day, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("Day", new SelectList(Enum.GetValues(typeof(DayOfWeek))), htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Day, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+      
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Cadastrar" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Voltar a lista de aulas", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+
+<div class="modal fade" id="errorMsgModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+
+                <h4 class="modal-title">Faltam dados!</h4>
+            </div>
+            <div class="modal-body">
+                <p>Para criar um horário de aula voce ainda precisa de:</p>
+                @if (amountProfessor == 0)
+                {
+                    <ul>@Html.ActionLink("Professor", "Create", "Professor", null, null)</ul>
+                }
+                @if (amountRoom == 0)
+                {
+                    <ul>@Html.ActionLink("Sala", "Create", "Room", null, null)</ul>
+                }
+            </div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script>
+    $(document).ready(function () {
+        @if (amountProfessor == 0 || amountRoom == 0) {
+            <text>
+            $('#errorMsgModal').modal('show');
+            $('#errorMsgModal').on('hide.bs.modal', function(e) { return false; })
+            </text>
+        }
+    })
+</script>

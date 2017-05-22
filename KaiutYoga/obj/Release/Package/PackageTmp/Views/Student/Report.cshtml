@@ -1,0 +1,31 @@
+﻿@model IEnumerable<KaiutYoga.Models.StudentModel>
+
+<script>
+    $(function () {
+        $("#tabs").tabs();
+    });
+</script>
+
+<br />
+<div id="tabs">
+    <ul>
+        <li>
+            <a href="#Students">Alunos</a>
+        </li>
+        <li>
+            <a href="#TrialClasses">Aulas experimentais</a>
+        </li>
+        <li><a href="#MissingClasses">Faltas</a></li>
+        
+    </ul>
+    <div id="Students">
+        @Html.Partial("_ReportStudents", Model.Where(c=>c.Plan.IsTrial == false).Where(c=>c.Active).OrderBy(c=>c.Name))
+    </div>
+    <div id="TrialClasses">
+    </div>
+    <div id="MissingClasses">
+        @Html.Partial("_ReportMissedClasses", Model)
+    </div>
+</div>
+
+

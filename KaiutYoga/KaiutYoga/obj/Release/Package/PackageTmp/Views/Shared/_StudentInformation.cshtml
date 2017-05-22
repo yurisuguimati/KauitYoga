@@ -1,0 +1,27 @@
+﻿@model KaiutYoga.ViewModels.StudentOverview
+
+
+<table>
+    <tr>
+        <td style="padding:5px 5px 0 5px;">Nome</td>
+        <td style="padding:5px 5px 0 0;">@Model.Student.FirstName @Model.Student.LastName</td>
+    </tr>
+    @if (Model.Presence != null)
+    {
+        <tr>
+            <td style="padding:0 5px 0 5px;">Presente</td>
+            @if (Model.Student.PresentInClass(Model.Presence))
+            {
+                <td style=""><i class="fa fa-check-square"></i></td>
+            }
+            else
+            {
+                <td style=""><i class="fa fa-square"></i></td>
+            }
+        </tr>
+    }
+    <tr>
+        <td style="padding:0 5px 5px 5px;">Plano</td>
+        <td style="padding:0 5px 5px 0;">@Model.Student.Plan.Name</td>
+    </tr>
+</table>

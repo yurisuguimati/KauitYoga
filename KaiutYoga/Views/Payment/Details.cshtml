@@ -1,0 +1,90 @@
+﻿@model KaiutYoga.Models.PaymentModel
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>PaymentModel</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Plan.Name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Plan.Name)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Student.FirstName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Student.FirstName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.PeriodStart)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.PeriodStart)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.PeriodEnd)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.PeriodEnd)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Period)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Period)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.AmountPaid)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.AmountPaid)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.DatePaid)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.DatePaid)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Notified)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Notified)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.AmountToPay)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.AmountToPay)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

@@ -1,0 +1,6 @@
+﻿@model IEnumerable<KaiutYoga.Models.StudentModel>
+
+@foreach (var item in Model) {
+    <hr />
+    @Html.Partial("_ReportStudent", item)
+}

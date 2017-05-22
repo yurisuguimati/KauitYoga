@@ -1,0 +1,95 @@
+﻿@model IEnumerable<KaiutYoga.Models.StudentModel>
+
+<div>
+@{ 
+    long amountInLine = 3;
+    @:Aulas semanais<br />
+    <div class="row-fluid">
+    @foreach (KaiutYoga.Models.StudentModel sm in Model)
+    {
+        if (sm.AmountMissedWeeklyClasses() > 0)
+        {
+                foreach (KaiutYoga.Models.PresenceModel pm in sm.MissedWeeklyClasses().OrderBy(c => c.Date))
+                {
+                    
+                        <div class="col-md-3"  style="margin-bottom:15px">
+                            <div onclick="alert('will do something')" class="missedclass anyclass">
+                                <table class="table">
+                                    <tr>
+                                        @sm.Name 
+                                    </tr>
+                                    <tr>
+                                        @pm.Date.ToString("dd/MM/yyyy - HH:mm")
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                   
+                }
+        }
+    }
+    </div>
+
+    @:Aulas experimentais<br />
+    foreach (KaiutYoga.Models.StudentModel sm in Model)
+    {
+        if (sm.Plan.IsTrial && sm.AmountMissedTrialClasses() > 0)
+        {
+            long count = 0;
+            @:<table class="missedclass">
+            @:<tr>
+            foreach (KaiutYoga.Models.PresenceModel pm in sm.MissedTrialClasses().OrderBy(c => c.Date))
+            {
+                if (count % amountInLine == 0)
+                {
+                @:</tr><tr>
+                }
+                    count++;
+                @:<td>
+                    <div onclick="alert('will do something')" class="missedclass anyclass">
+                        @sm.Name - @pm.Date.ToString("dd/MM/yyyy - HH:mm")
+                    </div>
+                @:</td>
+                }
+                for (long i = count; i < amountInLine; i++)
+                {
+                @:
+                <td class="blank334"></td>
+                }
+            @:</tr>
+            @:</table>
+        }
+    }
+
+    @:Aulas de reposição<br />
+    foreach (KaiutYoga.Models.StudentModel sm in Model)
+    {
+        if (sm.AmountMissedReplacementClasses() > 0)
+        {
+            long count = 0;
+            @:<table class="missedclass">
+                @:<tr>
+                    foreach (KaiutYoga.Models.PresenceModel pm in sm.MissedReplacementClasses().OrderBy(c => c.Date))
+                    {
+                        if (count % amountInLine == 0)
+                        {
+                            @:</tr><tr>
+                        }
+                        count++;
+                        @:<td>
+                            <div onclick="alert('will do something')" class="missedclass anyclass">
+                                @sm.Name - @pm.Date.ToString("dd/MM/yyyy - HH:mm")
+                            </div>
+                        @:</td>
+                    }
+                    for (long i = count; i < amountInLine; i++)
+                    {
+                        @:<td class="blank334"></td>
+                    }
+                @:</tr>
+            @:</table>
+        }
+    }
+}
+</div>
+

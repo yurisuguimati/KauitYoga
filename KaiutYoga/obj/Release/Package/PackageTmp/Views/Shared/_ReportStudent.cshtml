@@ -1,0 +1,86 @@
+﻿@model KaiutYoga.Models.StudentModel
+
+@{
+    KaiutYoga.Models.KaiutYogaContext context = new KaiutYoga.Models.KaiutYogaContext();
+    
+    <div class="row-fluid">
+        <div class="col-sm-8">
+            <h4 class="sub-header">Aluno</h4>
+            <div class="table">
+                <table class="table table-striped  table-condensed cf">
+                    <thead class="cf">
+                        <tr>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Name)
+                            </th>
+                            <th>
+                                @Html.DisplayName("Idade")
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Occupation)
+                            </th>
+                            <th>
+                                @Html.DisplayName("Plano")
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(model => model.Name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => model.Age)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => model.Occupation)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => model.Plan.Name)
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <h4 class="sub-header">Aulas</h4>
+            <div class="table">
+                <table class="table table-striped table-condensed cf">
+                    <thead class="cf">
+                        <tr>
+                            <th>
+                                Dia
+                            </th>
+                            <th>
+                                Horário
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Classes.Count < 1)
+                        {
+                            <tr>
+                                <td colspan="2">Sem aulas selecionadas</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var classmodel in Model.Classes)
+                            {
+                                <tr>
+                                    <td>
+                                        @classmodel.Day
+                                    </td>
+                                    <td>
+                                        @classmodel.SelectedTime
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}

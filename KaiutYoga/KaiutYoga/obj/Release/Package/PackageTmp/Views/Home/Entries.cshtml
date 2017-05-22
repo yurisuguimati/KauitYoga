@@ -1,0 +1,14 @@
+﻿@{
+    ViewBag.Title = "Cadastros básicos";
+}
+
+<hgroup class="title">
+    <h2>@ViewBag.Title</h2>
+</hgroup>
+
+<article>
+
+    <li>@Html.ActionLink("Salas", "Index", "Room")</li>
+    <li>@Html.ActionLink("Professores", "Index", "Professor")</li>
+    <li>@Html.ActionLink("Planos de aula", "Index", "Plan")</li>
+</article>

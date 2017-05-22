@@ -1,0 +1,73 @@
+﻿@model KaiutYoga.Models.PresenceModel
+
+@{
+    ViewBag.Title = "Lista de presença";
+}
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+<div>
+    <h2>Lista de presença</h2>
+    <button type="button" class="btn btn-default" onclick="location.href='@Url.Action("Overview", new { id = Model.ClassId, date = Model.ConvertToMilliseconds })'">Voltar as informações gerais</button>
+    
+    <hr />
+    <dl class="dl-horizontal">
+        @Html.HiddenFor(model => Model.Id)
+        <dt>
+            Aula
+        </dt>
+
+        <dd>
+            @Model.Date.ToString("dd/MM/yyyy HH:mm") | @Html.DisplayFor(model => model.Date.DayOfWeek)
+        </dd>
+
+
+        <dt>
+            Alunos inscritos
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.AllEnroledStudents().Count)
+        </dd>
+
+        <dt>
+            Alunos presentes
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.AllPresentStudents().Count)
+        </dd>
+        <hr />
+        <h4>Alunos</h4>
+        <dl class="dl-horizontal">
+            
+                <table style="margin-left:30px">
+                    <tbody>
+                        <tr>
+                            @{
+                                int cnt = 0;
+                                List<KaiutYoga.ViewModels.StudentsAttendance> students = ViewBag.Students;
+                                foreach (var student in students.OrderBy(c => c.Name))
+                                {
+                                    if (cnt++ % 2 == 0)
+                                    {
+                                        @:</tr><tr style="height:35px;">
+                                    }
+                                    <td>
+                                        <input type="checkbox" name="presentStudent" style="margin-right:5px" value="@student.StudentId" @(Html.Raw(student.Presence ? "checked=\"checked\"" : ""))/>
+                                    </td>
+                                    <td style="padding-right:10px;">
+                                       @student.Name
+                                    </td>
+                                }
+                            }
+                        </tr>
+                    </tbody>
+                </table>
+            
+        </dl>
+</div>
+<input type="submit" value="Salvar presença" class="btn btn-primary"/>
+}
+

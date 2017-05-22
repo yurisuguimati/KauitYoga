@@ -1,0 +1,224 @@
+﻿@model KaiutYoga.ViewModels.ClassOverview
+
+@{
+    ViewBag.Title = "Visão geral da aula";
+
+    <h2>Informações gerais - Aula de @Model.ClassDate.ToString("dd/MM/yyyy - HH:mm")</h2>
+
+    <p>
+        @if (Model.ClassDate.AddMinutes(-10) >= DateTime.Now)
+        {
+            <div class="alert alert-danger" role="alert">
+                
+                <strong>A chamada poderá ser feita 10 minutos antes do inicio da aula</strong>
+            </div>
+        }
+        else if (Model.HavePresenceList())
+        {
+            <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Presence", new { classId = Model.Class.Id, date = Model.DateInMilliseconds() })'">Lista de chamada</button>
+        }
+        else
+        {
+            if (Model.AllEnroledStudents.Count > 0)
+            {
+                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#confirmPresenceModal">Criar lista de chamada</button>
+            }
+        }
+        <button type="button" class="btn btn-default" onclick="location.href='@Url.Action("Index", "Home")'">Voltar a página inicial</button>
+
+        @if (Model.HavePresenceList())
+        {
+            <button type="button" class="btn btn-danger" style="float:right" data-toggle="modal" data-target="#deletePresenceModal">Apagar a chamada</button>
+        }
+    </p>
+
+    <script>
+        function openStudent(studentId) {
+            window.open(window.applicationBaseUrl+'Student/Edit/' + studentId, '_self');
+        }
+    </script>
+    <br />
+    <table class="table table-striped table-condensed">
+        <tr>
+            <td>
+                <label>@Html.DisplayNameFor(model => model.Class.Professor.Name)</label>
+            </td>
+            <td>@Html.DisplayFor(model => model.Class.Professor.Name)</td>
+        </tr>
+        <tr>
+            <td>
+                <label>@Html.DisplayNameFor(model => model.Class.Room.Name)</label>
+            </td>
+            <td>
+                @Html.DisplayFor(model => model.Class.Room.Name)
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label>@Html.DisplayNameFor(model => model.Class.Capacity)</label>
+            </td>
+            <td>@Html.DisplayFor(model => model.Class.Capacity)</td>
+        </tr>
+        <tr>
+            <td>
+                <label>Alunos incritos</label>
+            </td>
+            <td>@Html.DisplayFor(model => model.AllEnroledStudents.Count)</td>
+        </tr>
+        <tr>
+            <td>
+                <label>@Html.DisplayNameFor(model => model.Class.SelectedTime)</label>
+            </td>
+            <td>@Html.DisplayFor(model => model.Class.SelectedTime)</td>
+        </tr>
+        <tr>
+            <td>
+                <label>@Html.DisplayNameFor(model => model.Class.Day)</label>
+            </td>
+            <td>@Html.DisplayFor(model => model.Class.Day)</td>
+        </tr>
+    </table>
+    <div>
+        <hr />
+        @if (Model.AllEnroledStudents.Count > 0)
+        {
+            if (Model.EnroledWeeklyStudents != null && Model.EnroledWeeklyStudents.Count != 0)
+            {
+                <div class="row-fluid" >
+                    <div class="col-md-12"><h4>Alunos semanais</h4></div>
+                    @foreach (KaiutYoga.Models.StudentModel studentmodel in Model.EnroledWeeklyStudents.OrderBy(c=>c.Name))
+                    {
+                        <text>
+                        <div class="col-md-4"   style="margin-bottom:15px">
+                            <div onclick="openStudent(@studentmodel.Id)" class="weekly">
+                                @{
+                                    KaiutYoga.ViewModels.StudentOverview so = new KaiutYoga.ViewModels.StudentOverview();
+                                    so.Student = studentmodel;
+                                    so.Presence = Model.PresenceList();
+                                    @Html.Partial("_StudentInformation", so)
+                                }
+                            </div>
+                        </div>
+                        </text>
+                    }
+                    </div>
+            }
+            
+            if (Model.EnroledTrialStudents != null && Model.EnroledTrialStudents.Count != 0)
+            {
+                <div class="row-fluid">
+                    <div class="col-md-12"><h4>Alunos em aulas experimentais</h4></div>
+                    @foreach (KaiutYoga.Models.StudentModel studentmodel in Model.EnroledTrialStudents.OrderBy(c => c.Name))
+                    {
+                        <text>
+                            <div class="col-md-4" style="margin-bottom:15px">
+                                <div onclick="openStudent(@studentmodel.Id)" class="trial">
+                                    @{
+                                        KaiutYoga.ViewModels.StudentOverview so = new KaiutYoga.ViewModels.StudentOverview();
+                                        so.Student = studentmodel;
+                                        so.Presence = Model.PresenceList();
+                                        @Html.Partial("_StudentInformation", so)
+                                    }
+                                </div>
+                            </div>
+                        </text>
+                    }
+                </div>
+            }
+
+            if (Model.EnroledReplacementStudents != null && Model.EnroledReplacementStudents.Count != 0)
+            {
+                <div class="row-fluid">
+                    <div class="col-md-12"><h4>Alunos em aulas de reposição</h4></div>
+                    @foreach (KaiutYoga.Models.StudentModel studentmodel in Model.EnroledReplacementStudents.OrderBy(c => c.Name))
+                    {
+                        <text>
+                            <div class="col-md-4" style="margin-bottom:15px;">
+                                <div onclick="openStudent(@studentmodel.Id)" class="replacement">
+                                    @{
+                                        KaiutYoga.ViewModels.StudentOverview so = new KaiutYoga.ViewModels.StudentOverview();
+                                        so.Student = studentmodel;
+                                        so.Presence = Model.PresenceList();
+                                        @Html.Partial("_StudentInformation", so)
+                                    }
+                                </div>
+                            </div>
+                        </text>
+                    }
+                </div>
+            }
+        }
+        else{
+            <p>
+                <div class="alert alert-warning" role="alert"><strong>Não há alunos matriculados nesta aula</strong></div>
+            </p>
+        }
+    </div>
+
+    <div class="modal fade" id="confirmPresenceModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Chamada para a aula do dia @Model.ClassDate.ToString("dd/MM/yyyy") às @Model.Class.SelectedTime</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Uma vez que a lista for criada você não poderá mais alterar os alunos inscritos nesta aula</p>
+                    <br />
+                    <p>Deseja continuar?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Não</button>
+                    <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Presence", new { classId = Model.Class.Id, date = Model.DateInMilliseconds() })'">Sim! Crie a chamada</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <div class="modal fade" id="deletePresenceModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Apagar a chamada do dia @Model.ClassDate.ToString("dd/MM/yyyy") às @Model.Class.SelectedTime</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Esta lista de chamada será apagada e todos seus dados excluidos.</p>
+                    <br />
+                    <p>Deseja continuar?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Não</button>
+                    <button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("DeletePresence", new { classId = Model.Class.Id, date = Model.DateInMilliseconds() })'">Sim! Apague a chamada</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="errorMsgModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Ops, ocorreu um erro!</h4>
+                </div>
+                <div class="modal-body">
+                    <p>@TempData["ErrorContent"]</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Ok, entendi!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    $(document).ready(function () {
+        @if (TempData["ErrorContent"] != null)
+        {
+            <text>$('#errorMsgModal').modal('show');</text>
+        }
+    })
+    </script>
+
+}

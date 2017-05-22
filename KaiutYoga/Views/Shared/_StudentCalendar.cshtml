@@ -1,0 +1,329 @@
+﻿@model KaiutYoga.Models.StudentModel
+
+@{
+    KaiutYoga.Models.KaiutYogaContext context = new KaiutYoga.Models.KaiutYogaContext();
+    KaiutYoga.Models.ClassModel cm = new KaiutYoga.Models.ClassModel();
+    List<KaiutYoga.Models.ClassModel> listclassmodel = cm.GetClasses(context).ToList();
+    List<KaiutYoga.Models.PresenceModel> listpresencemodel = context.PresenceModels.ToList();
+    IEnumerable<IGrouping<DateTime, string>> listspareclassmodel = context.SpareClassModels.GroupBy(scm => scm.NewDate, scm => scm.GetMilliseconds).ToList();
+    List<KaiutYoga.Models.StudentModel> liststudentmodel = context.StudentModels.Include("Classes").Where(s => s.Active).ToList();
+
+    <script>
+        registerDate = new Date("@Model.ConvertRegisterDateToString()");
+        @if (!Model.Plan.IsTrial) {
+            <text>amountSpare = @(Model.MissedWeeklyClasses().Count - Model.ReplacementClassesPresent())</text>
+        }
+        else
+        {
+            <text>amountSpare = @(Model.AmountMissedClasses())</text>
+        }
+
+        function GenerateEvents(){
+            createdEvents = [
+                @foreach (KaiutYoga.Models.ClassModel classmodel in listclassmodel)
+                {
+                    int weeklyStudents = classmodel.WeeklyStudents(liststudentmodel).Count;
+                    <text>
+                    {
+                        id: @classmodel.Id,
+                        title: 'Inscritos: @weeklyStudents/@classmodel.Capacity',
+                        amountWeeklyStudents: @weeklyStudents,
+                        capacity: @classmodel.Capacity,
+                        classId: '@classmodel.Id',
+                        start: '@classmodel.SelectedTime',
+                        allDay: false,
+                        dow: [@Convert.ToInt16(classmodel.Day)],
+                        borderColor : anyClassColor,
+                        </text>
+                    if (Model.Classes != null && Model.Classes.ToList().Exists(m => m.Id == classmodel.Id) && !Model.Plan.IsTrial)
+                    {
+                            <text>
+                        selected: true,
+                        weekly: true,
+                        backgroundColor: weeklyClassesColor,
+                        </text>
+                    }
+                    else
+                    {
+                            <text>
+                        selected: false,
+                        backgroundColor: anyClassColor
+                        </text>
+                    }
+                    <text>
+                    }
+                    </text>
+                    if (classmodel.Id != listclassmodel[listclassmodel.Count - 1].Id) {
+                    <text>,</text>
+                    }
+                }
+            ]
+
+            @if (Model.ReplacamentClasses != null)
+            {
+                foreach (KaiutYoga.Models.SpareClassModel scm in Model.ReplacamentClasses)
+                {
+                    <text>spareEvents.push(new Date("@scm.GetMilliseconds"));</text>
+                }
+            }
+
+            @if (listpresencemodel != null)
+            {
+                foreach (KaiutYoga.Models.PresenceModel pm in listpresencemodel)
+                {
+
+                    <text>blockedSpareEvents.push(new Date("@pm.ConvertToString"));</text>
+                    if (pm.AllPresentStudents().Find(c => c.Id == Model.Id) != null)
+                    {
+                        <text>presentInClass.push(new Date("@pm.ConvertToString"));</text>
+                    }
+                    else
+                    {
+                        <text>missedClass.push(new Date("@pm.ConvertToString"));</text>
+                    }
+                }
+            }
+
+            @foreach (IGrouping<DateTime, string> spareclassKey in listspareclassmodel)
+            {
+                <text>spareEventsToChangeTitle.push(new Date("@spareclassKey.Key.ToString("yyyy-MM-ddTHH:mm:ss")"));</text>
+            }
+        }
+
+        $(document).ready(function () {
+            GenerateEvents();
+
+            calendarHeight = window.innerHeight/2+110;
+            if (calendarHeight < 450)
+                calendarHeight = 450;
+
+            $('#monthlyClasses').fullCalendar({
+                header: {
+                    //right: 'month,agendaWeek',
+                    right: 'title', // center
+                    left: 'today prev,next' }, // buttons for switching between views
+                views:{
+                    month:{
+                        columnFormat:'ddd'
+                    },
+                },
+                timeFormat: 'H:mm',
+                fixedWeekCount : false,
+                defaultView: 'agendaWeek',
+                minTime: "07:00:00",
+                maxTime: "21:00:00",
+                defaultTimedEventDuration: '01:00:00',
+                allDaySlot: false,
+                axisFormat: 'H:mm',
+                hiddenDays:[0],
+                theme:true,
+                height:'auto',
+                eventSources: [createdEvents],
+                viewRender: function(view, element) {
+                    $('#monthlyClasses').fullCalendar('removeEventSource',createdEvents);
+                    $('#monthlyClasses').fullCalendar('refetchEvents');
+                    $('#monthlyClasses').fullCalendar('addEventSource',createdEvents);
+
+                    CorrectEventTitle('monthlyClasses');
+
+                    GetAndPaintSelectedSpareEvents('monthlyClasses');
+                    GetAndPaintEventsWithPresence('monthlyClasses');
+                },
+
+                eventAfterAllRender: function(view){
+                    $(".fc-event").bind("contextmenu", function (event) {
+                        event.preventDefault();
+                        $(".custom-menu").toggle(100);
+                        RightClickMenuPosition(event.pageY,event.pageX)
+                    });
+                },
+
+                eventClick: function (calEvent, jsEvent, view) {
+                    if ($(".custom-menu").is(":visible")){
+                        $(".custom-menu").hide(100);
+                        return;
+                    }
+
+                    if (calEvent.selected == false){
+                        AddClass("@Model.Id", "@Model.PlanId",amountSpare,calEvent, false)
+                    }
+                    else{
+                        RemoveClass("@Model.Id", "@Model.PlanId",amountSpare,calEvent)
+                    }
+                },
+                eventMouseover: function(calEvent, jsEvent) {
+                    document.body.style.cursor = "pointer";
+                    $.ajax({
+                        type: 'get',
+                        url: window.applicationBaseUrl+"Class/GetInformation",
+                        dataType: "html",
+                        data: "classId=" + calEvent.id + "&date=" + calEvent.start,
+                        contentType: "application/x-www-form-urlencoded;charset=utf-8",
+                        async: false,
+                        success: function (result) {
+                            tooltip = '<div class="calendarTooltip" style="display: none">'+result+'</div>';
+                        },
+                        error: function (e){
+                            tooltip = e;
+                        }
+                    });
+                    $("body").append(tooltip);
+                    $(this).mouseover(function(e) {
+                        $(this).css('z-index', 10000);
+                        $('.calendarTooltip').show();
+                        $('.calendarTooltip').fadeIn('500');
+                        $('.calendarTooltip').fadeTo('10', 1.9);
+                    }).mousemove(function(e) {
+                        ToolTipPosition(e.pageY,e.pageX);
+                    }).mousedown(function (e){
+                        $(this).css('z-index', 8);
+                        $('.calendarTooltip').remove();
+                        if (e.which==3){
+                            $('#goto').data("options",{classid:calEvent.id,classdate:calEvent.start});
+                            $("#add").unbind('click');
+                            $("#add").bind('click', function (e){
+                                $(".custom-menu").hide();
+                                AddClass("@Model.Id", "@Model.PlanId",amountSpare,calEvent, true)
+                            })
+                            $("#rem").unbind('click');
+                            $("#rem").bind('click', function (e){
+                                $(".custom-menu").hide();
+                                RemoveClass("@Model.Id", "@Model.PlanId",amountSpare,calEvent)
+                            })
+
+                            if (calEvent.selected == true){
+                                $('#add').hide();
+                                $('#rem').show();
+                            }
+                            else{
+                                $('#add').show();
+                                $('#rem').hide();
+                            }
+                        }
+                    });
+                },
+                eventMouseout: function(calEvent, jsEvent) {
+                    $(this).css('z-index', 8);
+                    document.body.style.cursor = "auto";
+                    $('.calendarTooltip').remove();
+                }
+            });
+
+            // If the document is clicked somewhere
+            $(document).bind("mousedown", function (e) {
+                if (!$(e.target).parents(".custom-menu").length > 0) {
+                    $(".custom-menu").hide(100);
+                }
+            });
+
+            // If the menu element is clicked
+            $(".custom-menu li").click(function(){
+                switch($(this).attr("data-action")) {
+                    case "goto":
+                        window.open(window.applicationBaseUrl+"Class/Overview?id="+$("#goto").data("options").classid+"&date="+$("#goto").data("options").classdate,"_self");
+                        break;
+                }
+                $(".custom-menu").hide();
+            });
+        });
+
+    </script>
+        <ul class='custom-menu'>
+            <li id="goto" data-action="goto" data-options='{"classid":"", "classdate":""}'>Ir para a aula</li>
+            <li id="add" data-action="add">Adicionar reposicao</li>
+            <li id="rem" data-action="remove">Remover</li>
+        </ul>
+
+        <div id="monthlyCalendar">
+            <table style="width:100%;">
+                <tr>
+                    <td>
+                        <div style="text-align:left;">
+                            @if (!Model.Plan.IsTrial)
+                            {
+                                if (Model.Classes != null)
+                                {
+                                    <text>Aulas semanais: <b id="amountnormal">@Model.Classes.Count/@Model.Plan.Frequency</b></text>
+                                }
+                                else
+                                {
+                                    <text>Aulas semanais: <b id="amountnormal">0/@Model.Plan.Frequency</b></text>
+                                }
+                            }
+                            else
+                            {
+                                if (Model.ReplacamentClasses != null)
+                                {
+                                    if (Model.ReplacamentClasses.Count >= Model.Plan.Frequency)
+                                    {
+                                        <text>Aulas experimentais: <b id="amountnormal">@(Model.ReplacamentClasses.Count-(Model.ReplacamentClasses.Count-Model.Plan.Frequency))/@Model.Plan.Frequency</b></text>
+                                    }
+                                    else
+                                    {
+                                        <text>Aulas experimentais: <b id="amountnormal">@Model.ReplacamentClasses.Count/@Model.Plan.Frequency</b></text>
+                                    }
+                                }
+                                else
+                                {
+                                    <text>Aulas experimentais: <b id="amountnormal">0/@Model.Plan.Frequency</b></text>
+                                }
+                            }
+                        </div>
+                    </td>
+                    <td>
+                        <div style="text-align:right;">
+                            @if (!Model.Plan.IsTrial)
+                            {
+                                if (Model.ReplacamentClasses != null && Model.EnroledReplacementClasses != null)
+                                {
+                                    <text>Reposição de aulas: <b id="amountspare">@(Model.Test())</b></text>
+                                    @*<text>Reposição de aulas: <b id="amountspare">@(Model.ReplacamentClasses.Where(c=>c.IsTrial == false && c.NewDate >= DateTime.Now.AddMonths(-2)).ToList().Count - Model.EnroledReplacementClasses.Where(c => c.Date >= DateTime.Now.AddMonths(-2)).ToList().Count)/@(Model.MissedWeeklyClasses().Count-Model.ReplacementClassesPresent())</b></text>*@
+                                }
+                                else
+                                {
+                                    <text>Reposição de aulas: <b id="amountspare">0/@Model.AmountMissedNotTrialClasses()</b></text>
+                                }
+                            }
+                            else
+                            {
+                                // Trial plan
+                                if (Model.ReplacamentClasses != null)
+                                {
+                                    if (Model.ReplacamentClasses.Count > Model.Plan.Frequency)
+                                    {
+                                        <text>Reposição de aulas experimentais: <b id="amountspare">@(Model.ReplacamentClasses.Where(c => c.IsTrial == true).ToList().Count - Model.Plan.Frequency)/@(Model.EnroledTrialClasses.Count - Model.TrialPresence.Count)</b></text>
+                                    }
+                                    else
+                                    {
+                                        <text>Reposição de aulas experimentais: <b id="amountspare">0/@Model.AmountMissedTrialClasses()</b></text>
+                                    }
+                                }
+                                else
+                                {
+                                    <text>Reposição de aulas experimentais: <b id="amountspare">0/@Model.AmountMissedTrialClasses()</b></text>
+                                }
+                            }
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <div id="monthlyClasses" style="margin-top:10px"></div>
+        </div>
+
+        <div class="modal fade" id="errorMsgModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Ops, você não pode fazer isso!</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p id="errorMsgContent"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Ok, entendi!</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+}

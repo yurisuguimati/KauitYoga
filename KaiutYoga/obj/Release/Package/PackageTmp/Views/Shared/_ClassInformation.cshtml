@@ -1,0 +1,47 @@
+﻿@model KaiutYoga.ViewModels.ClassOverview
+
+<table>
+    <tr><td colspan="2"><h4 class="sub-header">Aula</h4></td></tr>
+    <tr>
+        <td style="padding-right:5px">Data</td>
+        <td>@Model.ClassDate.ToString("dd/MM/yyyy - HH:mm")</td>
+    </tr>
+    <tr>
+        <td style="padding-right:5px">Professor</td>
+        <td>@Model.Class.Professor.Name</td>
+    </tr>
+    <tr>
+        <td style="padding-right:5px">Inscritos</td>
+        <td>@Model.AllEnroledStudents.Count/@(Model.Class.Room.Capacity+Model.Class.Room.SpareCapacity)</td>
+    </tr>
+ </table>
+    @if (Model.HavePresenceList())
+    {
+        @:
+        <table>
+            <tr><td colspan="2"><h4 class="sub-header">Chamada</h4></td></tr>
+            
+            <tr>
+                <td style="padding-right:5px">Presentes</td>
+                <td>@Model.AllPresentStudents.Count/@Model.AllEnroledStudents.Count 
+                @if (Model.AllEnroledStudents.Count != 0)
+                {
+                    <text>@((((double)Model.AllPresentStudents.Count / (double)Model.AllEnroledStudents.Count) * 100).ToString("0"))%</text>
+                }
+                </td>
+            </tr>
+            <tr>
+                <td style="padding-right:5px">Semanal</td>
+                <td>@Model.PresentWeeklyStudents.Count/@Model.EnroledWeeklyStudents.Count</td>
+            </tr>
+            <tr>
+                <td style="padding-right:5px">Reposição</td>
+                <td>@Model.PresentReplacementStudents.Count/@Model.EnroledReplacementStudents.Count</td>
+            </tr>
+            <tr>
+                <td style="padding-right:5px">Experimental</td>
+                <td>@Model.PresentTrialStudents.Count/@Model.EnroledTrialStudents.Count</td>
+            </tr>
+        </table>
+    }
+

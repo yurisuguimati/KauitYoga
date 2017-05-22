@@ -1,0 +1,270 @@
+﻿@model KaiutYoga.Models.StudentModel
+
+@{
+    KaiutYoga.Models.KaiutYogaContext context = new KaiutYoga.Models.KaiutYogaContext();
+    int amountPlans = context.PlanModels.Count();
+    int amountClasses = context.ClassModels.Count();
+
+    ViewBag.Title = "Cadastro de aluno";
+}
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+
+
+    <div class="row">
+        <div class="col-md-3">
+            <h3>
+                Cadastrar novo aluno
+
+            </h3>
+            <div class="editor-label">
+                @Html.LabelFor(model => model.FirstName)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.FirstName, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="editor-label">
+                @Html.LabelFor(model => model.LastName)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.LastName, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="editor-label">
+                @Html.LabelFor(model => model.Gender)
+            </div>
+            <div class="editor-field">
+                @Html.EnumDropDownListFor(model => model.Gender, null, htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Gender, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="editor-label">
+                @Html.LabelFor(model => model.BirthDate)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.BirthDate, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.BirthDate, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="editor-label">
+                @Html.LabelFor(model => model.PlanId)
+            </div>
+            <div class="editor-field">
+                @Html.DropDownList("PlanId", null, htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.PlanId, "", new { @class = "text-danger" })
+            </div>
+
+            @Html.Partial("_CalendarSubtitle")
+
+            <input type="submit" value="Salvar" class="btn btn-primary"  onclick="changed=false"/>
+            
+            @Html.ActionLink("Voltar a lista de alunos", "Index", null, new { @class = "btn btn-default" })
+        </div>
+
+
+        <div class="col-md-9">
+            <div id="tabs" style="margin-top:15px" class="row-fluid">
+                <ul>
+                    <li><a href="#calendar">Aulas</a></li>
+                    <li><a href="#additionalInfo">Informações adicionais</a></li>
+                </ul>
+                <div id="calendar" class="row-fluid">
+                    <h1>Selecione um plano de aula</h1>
+                </div>
+                <div id="additionalInfo" class="row-fluid">
+                    <div class="col-md-6">
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.Address)
+                        </div>
+                        <div class="editor-field">
+                            @Html.EditorFor(model => model.Address, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.Neighborhood)
+                        </div>
+                        <div class="editor-field">
+                            @Html.EditorFor(model => model.Neighborhood, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Neighborhood, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.City)
+                        </div>
+                        <div class="editor-field">
+                            @Html.EditorFor(model => model.City, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.City, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.CEP)
+                        </div>
+                        <div class="editor-field">
+                            @Html.EditorFor(model => model.CEP, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.CEP, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.RG)
+                        </div>
+                        <div class="editor-field">
+                            @Html.EditorFor(model => model.RG, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.RG, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.CPF)
+                        </div>
+                        <div class="editor-field">
+                            @Html.EditorFor(model => model.CPF, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.CPF, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.MaritalStatus)
+                        </div>
+                        <div class="editor-field">
+                            @Html.EnumDropDownListFor(model => model.MaritalStatus, null, htmlAttributes: new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.MaritalStatus, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.Occupation)
+                        </div>
+                        <div class="editor-field">
+                            @Html.EditorFor(model => model.Occupation, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Occupation, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.Phone)
+                        </div>
+                        <div class="editor-field">
+                            @Html.EditorFor(model => model.Phone, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.CelPhone)
+                        </div>
+                        <div class="editor-field">
+                            @Html.EditorFor(model => model.CelPhone, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.CelPhone, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.Email)
+                        </div>
+                        <div class="editor-field">
+                            @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="editor-label">
+                            @Html.LabelFor(model => model.Observations)
+                        </div>
+                        <div class="editor-multiline-field">
+                            @Html.EditorFor(model => model.Observations, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Observations, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="modal fade" id="errorMsgModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                
+                <h4 class="modal-title">Faltam dados!</h4>
+            </div>
+            <div class="modal-body">
+                <p>Para completar o cadastro de aluno voce ainda precisa de:</p>
+                @if (amountPlans == 0)
+                {
+                    <ul>@Html.ActionLink("Plano de aula", "Create", "Plan", null, null)</ul>
+                }
+                @if (amountClasses == 0)
+                {
+                    <ul>@Html.ActionLink("Horários de aula", "Index", "Class", null, null)</ul>
+                }
+            </div>
+            
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script>
+    $(document).ready(function () {
+        @if (amountPlans == 0 || amountClasses == 0) { 
+            <text>
+            $('#errorMsgModal').modal('show');
+            $('#errorMsgModal').on('hide.bs.modal', function(e) { return false; })
+            </text>
+        }
+    })
+</script>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+<script>
+    $("*").on("input", function () {
+        changed = true;
+    });
+
+    $('#PlanId').change(function () {
+        /* Get the selected value of dropdownlist */
+        var selectedID = $(this).val();
+        /* Request the partial view with .get request. */
+        if (selectedID != "") {
+            $.ajax({
+                type: 'post',
+                url: window.applicationBaseUrl + "Student/GetClassCalendar",
+                dataType: "html",
+                data: "planId=" + selectedID,
+                contentType: "application/x-www-form-urlencoded;charset=utf-8",
+                async: true,
+                success: function (result) {
+                    $('#calendar').html(result);
+                }
+
+            })
+        }
+        else {
+            $('#calendar').html("<h1>Selecione um plano de aula</h1>");
+        }
+    });
+
+    var selectedID = $("#PlanId").val();
+    /* Request the partial view with .get request. */
+    if (selectedID != "") {
+        $.ajax({
+            type: 'post',
+            url: window.applicationBaseUrl + "Student/GetClassCalendar",
+            dataType: "html",
+            data: "planId=" + selectedID,
+            contentType: "application/x-www-form-urlencoded;charset=utf-8",
+            async: true,
+            success: function (result) {
+                $('#calendar').html(result);
+            }
+        })
+    }
+
+    $(window).bind('beforeunload', function () {
+        if (changed) {
+            //return $("#leavingPageModal").modal('show');
+            return 'Você fez iniciou o cadastro deste aluno e não terminou, deseja mesmo sair?';
+        }
+    });
+
+</script>
+

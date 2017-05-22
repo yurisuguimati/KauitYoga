@@ -1,0 +1,7 @@
+﻿@model KaiutYoga.Models.PresenceModel
+
+
+
+<div onclick="window.open(window.applicationBaseUrl+'Class/Overview?id='+@Model.ClassId+'&date=@Model.Date','_self');" class="missedclass anyclass">
+    @Model.Date.ToString("dd/MM/yyyy - HH:mm")
+</div>

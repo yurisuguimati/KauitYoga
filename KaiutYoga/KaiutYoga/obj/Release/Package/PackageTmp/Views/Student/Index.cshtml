@@ -1,0 +1,100 @@
+﻿@model PagedList.IPagedList<KaiutYoga.Models.StudentModel>
+@using PagedList.Mvc;
+
+@{
+    ViewBag.Title = "Lista de alunos";
+}
+
+<h2>Lista de alunos</h2>
+
+<p>
+
+</p>
+
+
+<p>
+    <div class="form-inline">
+        <div class="form-group">
+
+            @using (Html.BeginForm("Index", "Student", FormMethod.Get))
+            {
+                //@Html.TextBox("searchName", ViewBag.searchName as string, new { @class = "form-control", @placeholder = "Nome ou sobrenome"})
+
+                @Html.TextBox("searchName", ViewBag.searchName as string, new { @class = "form-control", @placeholder = "Nome ou sobrenome", @onchange = "this.form.submit();" })
+
+                <select onchange="this.form.submit();" id="studentStatus" name="studentStatus" class="form-control">
+                    <option value="True">Ativos</option>
+                    <option value="False">Inativos</option>
+                </select>
+                
+                <button type="submit" id="btnsubmit" class="btn btn-default"><i class="fa fa-search" title="Pesquisar"></i> Pesquisar</button>
+            }
+        </div>
+
+        <button class="btn btn-primary " onclick="location.href='@Url.Action("Create")'"><i class="fa fa-plus" title="Novo aluno"></i> Novo registro</button>
+        <button class="btn btn-info " onclick="location.href='@Url.Action("Report")'"><i class="fa fa-archive" title="Relatórios"></i> Relatórios</button>
+    </div>
+</p>
+<script>
+    $("#studentStatus").val("@ViewBag.studentStatus");
+</script>
+<div>
+    @Html.PagedListPager(Model, page => Url.Action("Index", new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter }))
+</div>
+<div id="no-more-tables">
+    <table class="table col-sm-12 table-striped table-condensed cf">
+        <thead class="cf">
+            <tr>
+                <th>
+                    @Html.ActionLink("Nome", "Index", new { sortOrder = ViewBag.FirstNameSortParm, currentFilter = ViewBag.CurrentFilter })
+                </th>
+                <th>
+                    @Html.ActionLink("Sobrenome", "Index", new { sortOrder = ViewBag.LastNameSortParm, currentFilter = ViewBag.CurrentFilter })
+                </th>
+                <th>
+                    @Html.DisplayName("Telefone residencial")
+                </th>
+                <th>
+                    @Html.DisplayName("Celular")
+                </th>
+                <th>
+                    @Html.ActionLink("Plano", "Index", new { sortOrder = ViewBag.PlanSortParm, currentFilter = ViewBag.CurrentFilter })
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td data-title="Nome">
+                        @Html.DisplayFor(modelItem => item.FirstName)
+                    </td>
+                    <td data-title="Sobrenome">
+                        @Html.DisplayFor(modelItem => item.LastName)
+                    </td>
+                    <td data-title="Residencial">
+                        @Html.DisplayFor(modelItem => item.Phone)
+                    </td>
+                    <td data-title="Celular">
+                        @Html.DisplayFor(modelItem => item.CelPhone)
+                    </td>
+                    <td data-title="Plano">
+                        @Html.DisplayFor(modelItem => item.Plan.Name)
+                    </td>
+                    <td data-title="" align="right">
+                        <div class="form-inline">
+                            <button class="btn btn-danger btn-sm" onclick="location.href='@Url.Action("Delete",new { id=item.Id})'"><i class="fa fa-trash" title="Apagar aluno"></i> Apagar</button>
+                            <div class="form-group">
+                                <button class="btn btn-warning btn-sm" onclick="location.href='@Url.Action("Edit", new { id = item.Id })'"><i class="fa fa-pencil" title="Editar aluno"></i> Editar</button>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+

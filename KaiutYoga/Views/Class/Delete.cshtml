@@ -1,0 +1,81 @@
+﻿@model KaiutYoga.Models.ClassModel
+
+@{
+    ViewBag.Title = "Apagar aula";
+}
+
+<h2>Aulas</h2>
+
+<div class="form-horizontal">
+    <h4>Apagar</h4>
+    <hr />
+    <h3>Realmente deseja apagar este registro?</h3>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Professor.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.Professor.Name, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Room.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.Room.Name, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Day, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.Day, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.SelectedTime, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.SelectedTime, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+        </div>
+    </div>
+    @using (Html.BeginForm(null,null,FormMethod.Post, new { id = "deleteConfirm" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                @if (Model.Students.Count == 0 && !Model.HaveAnyPresenceList())
+                {
+                    <input type="submit" value="Apagar" class="btn btn-default" />
+                }
+                else
+                {
+                    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#confirmDeleteModal">Apagar</button>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<div>
+    @Html.ActionLink("Voltar a lista de aulas", "Index")
+</div>
+
+<div class="modal fade" id="confirmDeleteModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Apagar aula de @Model.Day, @Model.SelectedTime</h4>
+            </div>
+            <div class="modal-body">
+                <p>Esta aula possui alunos cadastrados ou alguma chamada feita.</p>
+                <br />
+                <p>Deseja continuar?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Não</button>
+                <button type="button" class="btn btn-danger" onclick="$('#deleteConfirm').submit();">Apagar!</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

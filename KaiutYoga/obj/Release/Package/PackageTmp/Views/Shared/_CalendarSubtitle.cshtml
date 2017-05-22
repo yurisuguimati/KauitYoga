@@ -1,0 +1,44 @@
+﻿<table cellpadding="3" class="table">
+    <thead class="thead">
+        @*<tr class="tr"><th class="th" colspan="3">Legenda do calendário</th></tr>*@
+        <br />
+        <tr class="tr">
+            <th class="th">Presença</th>
+            <th class="th">Sem</th>
+            <th class="th">Com</th>
+        </tr>
+    </thead>
+    <tbody class="tbody">
+        <tr class="tr">
+            <td class="td">Semanais</td>
+            <td class="td"><div id="weeklyClassEx" class="subtitleCalendar"></div></td>
+            <td class="td"><div id="weeklyClassPresenceEx" class="subtitleCalendar"></div></td>
+        </tr>
+        <tr class="tr">
+            <td  class="td">Reposição</td>
+            <td class="td"><div id="spareClassEx" class="subtitleCalendar"></div></td>
+            <td class="td"><div id="spareClassPresenceEx" class="subtitleCalendar"></div></td>
+        </tr>
+        @*<tr class="tr">
+            <td class="td">Experimental</td>
+            <td class="td"><div id="trialClassEx" class="subtitleCalendar"></div></td>
+            <td class="td"><div id="trialClassPresenceEx" class="subtitleCalendar"></div></td>
+        </tr>*@
+        <tr class="tr">
+            <td class="td">Não selecionadas</td>
+            <td class="td"><div id="calendarClassEx" class="subtitleCalendar"></div></td>
+            <td class="td"><div id="calendarClassPresenceEx" class="subtitleCalendar"></div></td>
+        </tr>
+    </tbody>
+</table>
+
+<script>
+    $('#weeklyClassEx').css("background-color", weeklyClassesColor);
+    $('#weeklyClassPresenceEx').css("background-color", weeklyClassesPresenceColor);
+    $('#spareClassEx').css("background-color", spareClassColor);
+    $('#spareClassPresenceEx').css("background-color", spareClassPresenceColor);
+    $('#trialClassEx').css("background-color", spareClassColor);
+    $('#trialClassPresenceEx').css("background-color", spareClassPresenceColor);
+    $('#calendarClassEx').css("background-color", anyClassColor);
+    $('#calendarClassPresenceEx').css("background-color", anyClassPresenceColor);
+</script>
