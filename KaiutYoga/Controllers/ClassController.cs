@@ -488,17 +488,18 @@ namespace KaiutYoga.Controllers
                     ClassModel cm = db.ClassModels.Find(cj.ClassId);
 
                     DateTime dt = TimeZoneInfo.ConvertTimeToUtc(cj.Start);
-
+                    
                     List<StudentModel> lsmw = cm.WeeklyStudents(dt, db);
                     cj.AmountWeeklyStudents = lsmw.Count;
-
+                    
                     List<StudentModel> lsmt = cm.TrialStudents(dt, db);
                     cj.AmountTrialStudents = lsmt.Count;
 
                     List<StudentModel> lsmr = cm.ReplacementStudents(dt, db);
                     cj.AmountReplacementStudents = lsmr.Count;
-
+                    
                     PresenceModel pm = cm.PresenceList(dt);
+                    
                     if (pm != null)
                     {
                         foreach (StudentModel sm in pm.EnroledWeeklyStudents)
@@ -524,10 +525,11 @@ namespace KaiutYoga.Controllers
                             // if the user in the presence list is not enroled in that class
                             if (lsmr.Find(c => c.Id == sm.Id) == null)
                                 cj.AmountReplacementStudents++;
+
+                            if (lsmw.Find(c => c.Id == sm.Id) != null)
+                                cj.AmountReplacementStudents--;
                         }
-
                     }
-
                 }
             }
             catch (Exception err)

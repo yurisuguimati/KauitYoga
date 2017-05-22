@@ -71,7 +71,7 @@ namespace KaiutYoga.Models
             ClassRepository cr = new ClassRepository(context);
             return cr.GetStudentsInClass(this.Id);
         }
-
+        
         public List<StudentModel> WeeklyStudents(List<StudentModel> liststudentmodel)
         {
             

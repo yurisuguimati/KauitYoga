@@ -63,7 +63,7 @@
             {
                 foreach (KaiutYoga.Models.SpareClassModel scm in Model.ReplacamentClasses)
                 {
-                    <text>spareEvents.push(new Date("@scm.GetMilliseconds"));</text>
+                    <text>spareEvents.push(@scm.GetMilliseconds);</text>
                 }
             }
 
@@ -71,16 +71,7 @@
             {
                 foreach (KaiutYoga.Models.PresenceModel pm in listpresencemodel)
                 {
-
-                    <text>blockedSpareEvents.push(new Date("@pm.ConvertToString"));</text>
-                    if (pm.AllPresentStudents().Find(c => c.Id == Model.Id) != null)
-                    {
-                        <text>presentInClass.push(new Date("@pm.ConvertToString"));</text>
-                    }
-                    else
-                    {
-                        <text>missedClass.push(new Date("@pm.ConvertToString"));</text>
-                    }
+                    <text>blockedSpareEvents.push(@pm.ConvertToMilliseconds);</text>
                 }
             }
 
@@ -125,7 +116,7 @@
                     $('#monthlyClasses').fullCalendar('addEventSource',createdEvents);
 
                     CorrectEventTitle('monthlyClasses');
-
+                    ClearSpareAddedOnScreen('monthlyClasses');
                     GetAndPaintSelectedSpareEvents('monthlyClasses');
                     GetAndPaintEventsWithPresence('monthlyClasses');
                 },
