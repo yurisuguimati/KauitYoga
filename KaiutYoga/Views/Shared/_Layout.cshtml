@@ -27,12 +27,12 @@
             $("body nav li").each(function () {
                 if ($(this).find("ul").length > 0) {
 
-                    //show subnav on hover  
+                    //show subnav on hover
                     $(this).mouseenter(function () {
                         $(this).find("ul").stop(true, true).slideDown();
                     });
 
-                    //hide submenus on exit  
+                    //hide submenus on exit
                     $(this).mouseleave(function () {
                         $(this).find("ul").stop(true, true).slideUp();
                     });
@@ -45,7 +45,7 @@
         });
 
         window.applicationBaseUrl = @Html.Raw(HttpUtility.JavaScriptStringEncode(Url.Content("~/"), true));
-        
+
 
         // if you need to include host and port in the url, use this:
         window.applicationBaseUrl = @Html.Raw(HttpUtility.JavaScriptStringEncode(
@@ -67,52 +67,52 @@
         var actionName = ViewContext.RouteData.Values["action"].ToString();
     }
     <div>
-    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    @Html.ActionLink("Kaiut Yoga Boqueirão", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                </div>
+
+                <div class="navbar-collapse collapse">
+                    @if (Request.IsAuthenticated)
+                    {
+                        <nav>
+                            <ul class="nav navbar-nav">
+                                <li class="@(actionName == "Entries" || pageName=="Room" || pageName=="Professor" || pageName == "Plan" || pageName == "Class" ? "active" : "")">
+                                    <a href="#">Cadastros<span class="caret"></span></a>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="#" onclick="goToMenu('Room')">Salas de aula</a></li>
+                                        @*<li class="divider"></li>*@
+                                        <li><a href="#" onclick="goToMenu('Professor')">Professores</a></li>
+                                        @*<li class="divider"></li>*@
+                                        <li><a href="#" onclick="goToMenu('Plan')">Planos de aula</a></li>
+                                        @*<li class="divider"></li>*@
+                                        <li><a href="#" onclick="goToMenu('Class')">Horários de aula</a></li>
+                                    </ul>
+                                </li>
+                                @*<li class="@(pageName == "Class" ? "active" : "")">@Html.ActionLink("Aulas", "Index", "Class")</li>*@
+                                <li class="@(pageName == "Student" ? "active" : "")">@Html.ActionLink("Alunos", "Index", "Student")</li>
+                                <li class="@(pageName == "Payment" ? "active" : "")">@Html.ActionLink("Pagamentos", "Index", "Payment")</li>
+                            </ul>
+                        </nav>
+
+                    }
+                    @Html.Partial("_LoginPartial")
+                </div>
+
+            </div>
+        </div>
         <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                @Html.ActionLink("Kaiut Yoga Boqueirão", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-            </div>
-
-            <div class="navbar-collapse collapse">
-                @if (Request.IsAuthenticated)
-                {
-                    <nav>
-                        <ul class="nav navbar-nav">
-                            <li class="@(actionName == "Entries" || pageName=="Room" || pageName=="Professor" || pageName == "Plan" || pageName == "Class" ? "active" : "")">
-                                <a href="#">Cadastros<span class="caret"></span></a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="#" onclick="goToMenu('Room')">Salas de aula</a></li>
-                                    @*<li class="divider"></li>*@
-                                    <li><a href="#" onclick="goToMenu('Professor')">Professores</a></li>
-                                    @*<li class="divider"></li>*@
-                                    <li><a href="#" onclick="goToMenu('Plan')">Planos de aula</a></li>
-                                    @*<li class="divider"></li>*@
-                                    <li><a href="#" onclick="goToMenu('Class')">Horários de aula</a></li>
-                                </ul>
-                            </li>
-                            @*<li class="@(pageName == "Class" ? "active" : "")">@Html.ActionLink("Aulas", "Index", "Class")</li>*@
-                            <li class="@(pageName == "Student" ? "active" : "")">@Html.ActionLink("Alunos", "Index", "Student")</li>
-                            <li class="@(pageName == "Payment" ? "active" : "")">@Html.ActionLink("Pagamentos", "Index", "Payment")</li>
-                        </ul>
-                    </nav>
-
-                }
-                @Html.Partial("_LoginPartial")
-            </div>
+            @RenderSection("featured", required: false)
+            @RenderBody()
 
         </div>
+        @RenderSection("scripts", required: false)
     </div>
-    <div class="container">
-        @RenderSection("featured", required: false)
-        @RenderBody()
-        
-    </div>
-    @RenderSection("scripts", required: false)
 </body>
 </html>
-

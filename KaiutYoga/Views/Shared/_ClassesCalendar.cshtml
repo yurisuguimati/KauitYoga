@@ -3,7 +3,6 @@
     KaiutYoga.Models.ClassModel cm = new KaiutYoga.Models.ClassModel();
     List<KaiutYoga.Models.ClassModel> listclassmodel = cm.GetClasses(context).ToList();
     List<KaiutYoga.Models.PresenceModel> listpresencemodel = context.PresenceModels.ToList();
-    //IEnumerable<IGrouping<DateTime, string>> listspareclassmodel = context.SpareClassModels.GroupBy(c => c.NewDate, c => c.GetMilliseconds).ToList();
     List<KaiutYoga.Models.StudentModel> liststudentmodel = context.StudentModels.Include("Classes").ToList();
 
     <script>
@@ -12,13 +11,11 @@
             createdEvents = [
                 @foreach (KaiutYoga.Models.ClassModel classmodel in listclassmodel)
                 {
-                    int enroledStudents = classmodel.AmountEnroledStudents();
                     <text>
                     {
-                        title: 'Inscritos: @(enroledStudents - classmodel.ReplacementStudents().Count - classmodel.TrialStudents().Count)/@classmodel.Capacity',
+                        title: 'Loading...',
                         amountWeeklyStudents: @classmodel.WeeklyStudents(liststudentmodel).Count,
                         capacity: @classmodel.Capacity,
-                        enroled: @enroledStudents,
                         start: '@classmodel.SelectedTime',
                         backgroundColor : '@classmodel.ClassColor()',
                         borderColor : '@classmodel.ClassColor()',
@@ -42,8 +39,12 @@
                 }
             }
         }
-
+        
+        var x,y;
         $(document).ready(function () {
+            $("#calendar").mousemove(function(e){x = e.pageX; y= e.pageY;})
+
+            var timeout;
             GenerateEvents("calendar");
 
             calendarHeight = window.innerHeight/2+272;
@@ -73,41 +74,20 @@
                 height:"auto",
                 eventSources: [createdEvents],
                 viewRender: function(view, element) {
-                    $('#calendar').fullCalendar('removeEventSource',createdEvents);
                     $('#calendar').fullCalendar('refetchEvents');
-                    $('#calendar').fullCalendar('addEventSource',createdEvents);
-                    CorrectEventTitle('calendar');
                     GetAndPaintEventsWithPresence('calendar');
+                    CorrectEventTitle('calendar');
                 },
                 eventMouseover: function(calEvent, jsEvent) {
                     document.body.style.cursor = "pointer";
-                    $.ajax({
-                        type: 'get',
-                        url: window.applicationBaseUrl+"Class/GetInformation",
-                        dataType: "html",
-                        data: "classId=" + calEvent.classId + "&date=" + calEvent.start,
-                        contentType: "application/x-www-form-urlencoded;charset=utf-8",
-                        async: false,
-                        success: function (result) {
-                            tooltip = '<div class="calendarTooltip" style="display: none">'+result+'</div>';
-                        },
-                        error: function (e){
-                            tooltip = e;
-                        }
-                    });
+                    calEvent.pageX = jsEvent.pageX;
+                    calEvent.pageY = jsEvent.pageY;
 
-                    $("body").append(tooltip);
-                    $(this).mouseover(function(e) {
-                        $(this).css('z-index', 10000);
-                        $('.calendarTooltip').show();
-                        $('.calendarTooltip').fadeIn('500');
-                        $('.calendarTooltip').fadeTo('10', 1.9);
-                    }).mousemove(function(e) {
-                        ToolTipPosition(e.pageY,e.pageX);
-                    });
+                    timeout = setTimeout(ToolTipTimeOut, 750, calEvent);
                 },
 
                 eventMouseout: function(calEvent, jsEvent) {
+                    clearTimeout(timeout);
                     $(this).css('z-index', 8);
                     document.body.style.cursor = "auto";
                     $('.calendarTooltip').remove();
@@ -116,7 +96,9 @@
                     window.open(window.applicationBaseUrl+"Class/Overview?id="+event.classId+"&date="+event.start,"_self");
                 }
             })
+
         });
+        
     </script>
     <div id='calendar'></div>
 }

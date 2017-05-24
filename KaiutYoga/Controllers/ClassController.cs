@@ -479,56 +479,31 @@ namespace KaiutYoga.Controllers
         }
 
         [HttpPost]
-        public string GetClasses(List<ClassJson> lcj)
+        public string GetClassesList(List<ClassJson> lcj)
         {
             try
             {
                 foreach (ClassJson cj in lcj)
                 {
-                    ClassModel cm = db.ClassModels.Find(cj.ClassId);
-
                     DateTime dt = TimeZoneInfo.ConvertTimeToUtc(cj.Start);
-                    
-                    List<StudentModel> lsmw = cm.WeeklyStudents(dt, db);
-                    cj.AmountWeeklyStudents = lsmw.Count;
-                    
-                    List<StudentModel> lsmt = cm.TrialStudents(dt, db);
-                    cj.AmountTrialStudents = lsmt.Count;
-
-                    List<StudentModel> lsmr = cm.ReplacementStudents(dt, db);
-                    cj.AmountReplacementStudents = lsmr.Count;
-                    
+                    ClassModel cm = db.ClassModels.Find(cj.ClassId);
                     PresenceModel pm = cm.PresenceList(dt);
-                    
-                    if (pm != null)
+                    if (pm == null)
                     {
-                        foreach (StudentModel sm in pm.EnroledWeeklyStudents)
-                        {
-                            // if the user in the presence list is not enroled in that class
-                            if (lsmw.Find(c => c.Id == sm.Id) == null)
-                                cj.AmountWeeklyStudents++;
-                        }
+                        List<StudentModel> lsmw = cm.WeeklyStudents(dt, db);
+                        cj.AmountWeeklyStudents = lsmw.Count;
 
-                        foreach (StudentModel sm in pm.EnroledTrialStudents)
-                        {
-                            // if the user in the presence list is not enroled in that class
-                            if (lsmt.Find(c => c.Id == sm.Id) == null)
-                                cj.AmountTrialStudents++;
+                        List<StudentModel> lsmt = cm.TrialStudents(dt, db);
+                        cj.AmountTrialStudents = lsmt.Count;
 
-                            // The user also appear in the weekly students list
-                            if (lsmw.Find(c => c.Id == sm.Id) != null)
-                                cj.AmountWeeklyStudents--;
-                        }
-
-                        foreach (StudentModel sm in pm.EnroledReplacementStudents)
-                        {
-                            // if the user in the presence list is not enroled in that class
-                            if (lsmr.Find(c => c.Id == sm.Id) == null)
-                                cj.AmountReplacementStudents++;
-
-                            if (lsmw.Find(c => c.Id == sm.Id) != null)
-                                cj.AmountReplacementStudents--;
-                        }
+                        List<StudentModel> lsmr = cm.ReplacementStudents(dt, db);
+                        cj.AmountReplacementStudents = lsmr.Count;
+                    }
+                    else
+                    {
+                        cj.AmountWeeklyStudents = pm.EnroledWeeklyStudents.Count;
+                        cj.AmountReplacementStudents = pm.EnroledReplacementStudents.Count;
+                        cj.AmountTrialStudents = pm.EnroledTrialStudents.Count;
                     }
                 }
             }
@@ -537,6 +512,40 @@ namespace KaiutYoga.Controllers
 
             }
             return JsonConvert.SerializeObject(lcj, Formatting.Indented);
+        }
+
+        [HttpPost]
+        public string GetClasses(ClassJson cj)
+        {
+            try
+            {
+                DateTime dt = TimeZoneInfo.ConvertTimeToUtc(cj.Start);
+                ClassModel cm = db.ClassModels.Find(cj.ClassId);
+                PresenceModel pm = cm.PresenceList(dt);
+                if (pm == null)
+                {
+                    List<StudentModel> lsmw = cm.WeeklyStudents(dt, db);
+                    cj.AmountWeeklyStudents = lsmw.Count;
+
+                    List<StudentModel> lsmt = cm.TrialStudents(dt, db);
+                    cj.AmountTrialStudents = lsmt.Count;
+
+                    List<StudentModel> lsmr = cm.ReplacementStudents(dt, db);
+                    cj.AmountReplacementStudents = lsmr.Count;
+                }
+                else
+                {
+                    cj.AmountWeeklyStudents = pm.EnroledWeeklyStudents.Count;
+                    cj.AmountReplacementStudents = pm.EnroledReplacementStudents.Count;
+                    cj.AmountTrialStudents = pm.EnroledTrialStudents.Count;
+                }
+
+            }
+            catch (Exception err)
+            {
+
+            }
+            return JsonConvert.SerializeObject(cj, Formatting.Indented);
         }
 
         public ActionResult DeletePresence(long classId = 0, string date = "")

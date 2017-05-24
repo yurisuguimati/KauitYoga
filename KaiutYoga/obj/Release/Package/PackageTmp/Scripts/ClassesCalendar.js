@@ -9,71 +9,50 @@ var spareClassPresenceColor = '#996300'
 var spareEventsToChangeTitle = [];
 var spareEvents = [];
 var blockedSpareEvents = [];
-var presentInClass = [];
-var missedClass = [];
-
-function PresentInClassOrNot(calendarName) {
-    
-    selectedPresentInClassEvents = $('#' + calendarName).fullCalendar('clientEvents', function (event) {
-        if (presentInClass == null)
-            return false;
-
-        for (var i = 0; i < presentInClass.length; i++) {
-            var dateEvent = new Date(event.start);
-            if (presentInClass[i].getTime() == dateEvent.getTime()) {
-                return true;
-            }
-        }
-        return false;
-    });
-
-    for (var i = 0; i < selectedPresentInClassEvents.length; i++) {
-        selectedPresentInClassEvents[i].backgroundColor = "white";
-    }
-
-    $('#'+calendarName).fullCalendar('updateEvent', calEvent);
-    //$('#' + calendarName).fullCalendar('removeEventSource', createdEvents);
-    //$('#' + calendarName).fullCalendar('refetchEvents');
-    //$('#' + calendarName).fullCalendar('addEventSource', createdEvents);
-}
+var spareAddedOnScreen = [];
+var requestsGetClasses = [];
 
 function CorrectEventTitle(calendarName) {
+
+    // abort requests done in another calendar page
+    for (var i = 0; i < requestsGetClasses.length; i++) {
+        requestsGetClasses[i].abort();
+    }
+    requestsGetClasses = [];
     
     selectedEventsToChangeTitle = $('#' + calendarName).fullCalendar('clientEvents');
-    var dataToSend = [];
-    
-    for (var i = 0; i < selectedEventsToChangeTitle.length; i++) {   
-        dataToSend.push({ ClassId: selectedEventsToChangeTitle[i].classId, Start: new Date(selectedEventsToChangeTitle[i].start), Weekly: 0, Trial: 0, Replacement: 0 });
-    }
-    
-    $.ajax({
-        type: 'post',
-        url: window.applicationBaseUrl + "Class/GetClasses",
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        data: JSON.stringify(dataToSend),
-        async: false,
-        success: function (result) {
-            for (var i = 0; i < result.length; i++) {
-                selectedEventsToChangeTitle[i].title = "Inscritos: " + (result[i].Weekly + result[i].Trial + result[i].Replacement) + "/" + selectedEventsToChangeTitle[i].capacity;
+    for (var i = 0; i < selectedEventsToChangeTitle.length; i++) {
+        dataToSend = { ClassId: selectedEventsToChangeTitle[i].classId, Start: selectedEventsToChangeTitle[i].start, Weekly: 0, Trial: 0, Replacement: 0, Index: i};
+        var request = $.ajax({
+            type: 'post',
+            url: window.applicationBaseUrl + "Class/GetClasses",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: JSON.stringify(dataToSend),
+            success: function (result) {
+                if (result != null) {
+                    index = result.Index;
+                    selectedEventsToChangeTitle[index].title = "Inscritos: " + (result.Weekly + result.Trial + result.Replacement) + "/" + selectedEventsToChangeTitle[index].capacity;
+                    $('#' + calendarName).fullCalendar('updateEvent', selectedEventsToChangeTitle[index]);
+                }
             }
-        },
-    });
+        });
+        requestsGetClasses.push(request);
+    }
 }
 
 function GetAndPaintSelectedSpareEvents(calendarName) {
     selectedSpareEvents = $('#' + calendarName).fullCalendar('clientEvents', function (event) {
         if (spareEvents == null)
             return false;
-
         for (var i = 0; i < spareEvents.length; i++) {
-            var dateEvent = new Date(event.start);
-            if (spareEvents[i].getTime() == dateEvent.getTime()) {
+            if (spareEvents[i] == event.start) {
                 return true;
             }
         }
         return false;
     });
+
     for (var i = 0; i < selectedSpareEvents.length; i++) {
         selectedSpareEvents[i].selected = true;
         selectedSpareEvents[i].backgroundColor = spareClassColor;
@@ -119,25 +98,48 @@ function ToolTipPosition(pageY, pageX) {
     var documentWidth = $(window).width();
     var documentHeight = $(window).height();
 
-    //Set top and bottom position of the tool tip
-    //var top = $(this).offset().top;
     var top = pageY;
-    //alert(top+toolTipHeight +">"+documentHeight)
-    if (top + toolTipHeight > documentHeight) {
+    if ((top + toolTipHeight+offsetHeight) > documentHeight) {
         top = pageY - toolTipHeight - (2*offsetHeight);
     }
 
     var left = pageX + offsetWidth;
 
     if (left + toolTipWidth > documentWidth) {
-        // shift the tool tip position to the left of the object 
-        // so it won't go out of width of current HTML document width
-        // and show up in the correct place
         left = pageX - toolTipWidth - (2 * offsetWidth);
     }
     $('.calendarTooltip').show();
     $('.calendarTooltip').css({ 'top': top, 'left': left});
-    //return top + "|" + left;
+}
+
+function ToolTipTimeOut(calEvent) {
+    $.ajax({
+        type: 'get',
+        url: window.applicationBaseUrl + "Class/GetInformation",
+        dataType: "html",
+        data: "classId=" + calEvent.classId + "&date=" + calEvent.start,
+        contentType: "application/x-www-form-urlencoded;charset=utf-8",
+        success: function (result) {
+            tooltip = '<div class="calendarTooltip" style="display: none">' + result + '</div>';
+            $("body").append(tooltip);
+            // declared on _ClassesCalendar and _StudentCalendar
+            ToolTipPosition(y, x);
+            $('.calendarTooltip').show();
+        },
+        error: function (e) {
+            tooltip = e;
+        }
+    });
+    
+    $(this).mouseover(function (e) {
+        $(this).css('z-index', 10000);
+        $('.calendarTooltip').show();
+        $('.calendarTooltip').fadeIn('500');
+        $('.calendarTooltip').fadeTo('10', 1.9);
+    }).mousemove(function (e) {
+        ToolTipPosition(e.pageY, e.pageX);
+    });
+    
 }
 
 function GetAndPaintEventsWithPresence(calendarName) {
@@ -156,8 +158,8 @@ function GetAndPaintEventsWithPresence(calendarName) {
             return false;
 
         for (var i = 0; i < spareEvents.length; i++) {
-            var dateEvent = new Date(event.start);
-            if (spareEvents[i].getTime() == dateEvent.getTime()) {
+            //var dateEvent = new Date(event.start);
+            if (spareEvents[i] == event.start) {
                 return true;
             }
         }
@@ -190,13 +192,13 @@ function GetAndPaintEventsWithPresence(calendarName) {
 }
 
 function AddClass(studentId, planId, amountSpare, calEvent, onlySpare) {
+
     $.ajax({
         type: 'post',
         url: window.applicationBaseUrl+"Student/AddClass",
         dataType: "json",
         data: "studentId=" + studentId + "&classId=" + calEvent.id + "&planId=" + planId + "&amountspare=" + amountSpare + "&date=" + calEvent.start + "&onlySpare=" + onlySpare,
         contentType: "application/x-www-form-urlencoded;charset=utf-8",
-        async: true,
         success: function (result) {
             if (result.SpareAdded || result.WeeklyAdded){
                 allEvents = $("#monthlyClasses").fullCalendar( 'clientEvents', function (event) {
@@ -206,37 +208,42 @@ function AddClass(studentId, planId, amountSpare, calEvent, onlySpare) {
                     }
                     return false;
                 });
-                                    
-                for (var i = 0; i < allEvents.length; i++) {
-                    if (result.WeeklyAdded)
-                    {
-                        allEvents[i].selected = true;
-                        allEvents[i].weekly = true;
-                        allEvents[i].backgroundColor = weeklyClassesColor;
-                        for (var j = 0; j < createdEvents.length; j++) {
-                            if (createdEvents[j].id == allEvents[i].id)
-                            {
-                                lastTitle = createdEvents[j].title;
-                                createdEvents[j]=allEvents[i];
-                                createdEvents[j].title;
-                            }
+                
+                i = 0;
+                
+                if (result.WeeklyAdded)
+                {
+                    allEvents[i].selected = true;
+                    allEvents[i].weekly = true;
+                    allEvents[i].backgroundColor = weeklyClassesColor;
+                        
+                    for (var j = 0; j < createdEvents.length; j++) {
+                        if (createdEvents[j].id == allEvents[i].id)
+                        {
+                            lastTitle = createdEvents[j].title;
+                            createdEvents[j]=allEvents[i];
                         }
                     }
+                    $('#monthlyClasses').fullCalendar('updateEvent', calEvent);
                 }
-                if (result.WeeklyAdded){
-                    $('#monthlyClasses').fullCalendar('updateEvent',calEvent);
-                }
-                else if (result.SpareAdded == true){
+                else //if (result.SpareAdded == true){
+                {
                     for (var j = 0; j < createdEvents.length; j++) {
                         if (createdEvents[j].id == calEvent.id)
                         {
-                            spareEvents.push(new Date(calEvent.start));
-                            createdEvents[j]=calEvent;
+                            // had to /1 to transfor into number
+                            spareEvents.push(calEvent.start / 1);
+                            createdEvents[j] = calEvent;
+                            createdEvents[j].backgroundColor = spareClassColor;
+                            createdEvents[j].selected = true;
+                            
+                            $('#monthlyClasses').fullCalendar('updateEvent', createdEvents[j]);
+                            spareAddedOnScreen.push(calEvent.id);
+                            break;
                         }
-                    }
+                    }    
                 }
-                $('#monthlyClasses').fullCalendar('next');
-                $('#monthlyClasses').fullCalendar('prev');
+                
                 $('#amountnormal').html(result.WeeklyMsg);
                 $('#amountspare').html(result.SpareMsg);
                 changed=true;
@@ -271,37 +278,58 @@ function RemoveClass(studentId, planId, amountSpare, calEvent) {
                 for (var j = 0; j < createdEvents.length; j++) {
                     if (createdEvents[j].id == allEvents[i].id)
                     {
-                        lastTitle = createdEvents[j].title;
-                        createdEvents[j]=allEvents[i];
-                        createdEvents[j].title = lastTitle;
+                        createdEvents[j]=allEvents[i]; 
                     }
                 }
             }
             for (var k = 0; k < spareEvents.length; k++) {
                 var dateEvent = new Date(calEvent.start);
-                if (spareEvents[k].toUTCString() == dateEvent.toUTCString())
+                if (spareEvents[k] == calEvent.start)
                 {
                     spareEvents.splice(k,1);
                 }
             }
-            $('#monthlyClasses').fullCalendar('updateEvent',calEvent);
-            GetAndPaintSelectedSpareEvents('monthlyClasses');
-            GetAndPaintEventsWithPresence('monthlyClasses');
 
+            $('#monthlyClasses').fullCalendar('updateEvent', calEvent);
+            if (!calEvent.weekly) {
+                for(var i = 0; i < spareAddedOnScreen.length; i++)
+                {
+                    if (spareAddedOnScreen[i] == calEvent.id)
+                        spareAddedOnScreen.splice(i,1);
+                }
+                calEvent.backgroundColor = anyClassColor;
+            }
+            
             changed=true;
         }
         else {
             openErrorModal("A presença deste dia ja foi feita, você não pode mais remover esta aula.")
         }
-        $('#monthlyClasses').fullCalendar('next');
-        $('#monthlyClasses').fullCalendar('prev');
-
+        
         $('#amountnormal').html(result.WeeklyMsg);
         $('#amountspare').html(result.SpareMsg);
     },
     error: function (e){
         $('#amountnormal').html(e);
     }})
+}
+
+function ClearSpareAddedOnScreen(calendar) {
+    if (spareAddedOnScreen != null && spareAddedOnScreen.length != 0) {
+        allEvents = $("#"+calendar).fullCalendar('clientEvents', function (event) {
+            for (var i = 0; i < spareAddedOnScreen.length; i++) {
+                if (spareAddedOnScreen[i] == event.id) {
+                    return true;
+                }
+            }
+            return false;
+        });
+        for (var i = 0; i < allEvents.length; i++) {
+            allEvents[i].selected = false;
+            allEvents[i].backgroundColor = anyClassColor;
+        }
+        spareAddedOnScreen = [];
+    }
 }
 
 function openErrorModal(msg) {

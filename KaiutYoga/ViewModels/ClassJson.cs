@@ -23,5 +23,8 @@ namespace KaiutYoga.ViewModels
 
         [JsonProperty(PropertyName = "Replacement")]
         public long AmountReplacementStudents { get; set; }
+
+        [JsonProperty(PropertyName = "Index")]
+        public long Index { get; set; }
     }
 }

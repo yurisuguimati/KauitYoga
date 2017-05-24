@@ -22,12 +22,10 @@
             createdEvents = [
                 @foreach (KaiutYoga.Models.ClassModel classmodel in listclassmodel)
                 {
-                    int weeklyStudents = classmodel.WeeklyStudents(liststudentmodel).Count;
                     <text>
                     {
                         id: @classmodel.Id,
-                        title: 'Inscritos: @weeklyStudents/@classmodel.Capacity',
-                        amountWeeklyStudents: @weeklyStudents,
+                        title: 'Loading...',
                         capacity: @classmodel.Capacity,
                         classId: '@classmodel.Id',
                         start: '@classmodel.SelectedTime',
@@ -81,7 +79,10 @@
             }
         }
 
+        var x,y;
         $(document).ready(function () {
+            $("#monthlyClasses").mousemove(function(e){x = e.pageX; y= e.pageY;})
+            var timeout;
             GenerateEvents();
 
             calendarHeight = window.innerHeight/2+110;
@@ -111,10 +112,8 @@
                 height:'auto',
                 eventSources: [createdEvents],
                 viewRender: function(view, element) {
-                    $('#monthlyClasses').fullCalendar('removeEventSource',createdEvents);
                     $('#monthlyClasses').fullCalendar('refetchEvents');
-                    $('#monthlyClasses').fullCalendar('addEventSource',createdEvents);
-
+                    
                     CorrectEventTitle('monthlyClasses');
                     ClearSpareAddedOnScreen('monthlyClasses');
                     GetAndPaintSelectedSpareEvents('monthlyClasses');
@@ -144,29 +143,12 @@
                 },
                 eventMouseover: function(calEvent, jsEvent) {
                     document.body.style.cursor = "pointer";
-                    $.ajax({
-                        type: 'get',
-                        url: window.applicationBaseUrl+"Class/GetInformation",
-                        dataType: "html",
-                        data: "classId=" + calEvent.id + "&date=" + calEvent.start,
-                        contentType: "application/x-www-form-urlencoded;charset=utf-8",
-                        async: false,
-                        success: function (result) {
-                            tooltip = '<div class="calendarTooltip" style="display: none">'+result+'</div>';
-                        },
-                        error: function (e){
-                            tooltip = e;
-                        }
-                    });
-                    $("body").append(tooltip);
-                    $(this).mouseover(function(e) {
-                        $(this).css('z-index', 10000);
-                        $('.calendarTooltip').show();
-                        $('.calendarTooltip').fadeIn('500');
-                        $('.calendarTooltip').fadeTo('10', 1.9);
-                    }).mousemove(function(e) {
-                        ToolTipPosition(e.pageY,e.pageX);
-                    }).mousedown(function (e){
+                    calEvent.pageX = jsEvent.pageX;
+                    calEvent.pageY = jsEvent.pageY;
+
+                    timeout = setTimeout(ToolTipTimeOut, 750, calEvent);
+
+                    $(this).mousedown(function (e){
                         $(this).css('z-index', 8);
                         $('.calendarTooltip').remove();
                         if (e.which==3){
@@ -194,6 +176,7 @@
                     });
                 },
                 eventMouseout: function(calEvent, jsEvent) {
+                    clearTimeout(timeout);
                     $(this).css('z-index', 8);
                     document.body.style.cursor = "auto";
                     $('.calendarTooltip').remove();
