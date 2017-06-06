@@ -3,7 +3,6 @@
     KaiutYoga.Models.ClassModel cm = new KaiutYoga.Models.ClassModel();
     List<KaiutYoga.Models.ClassModel> listclassmodel = cm.GetClasses(context).ToList();
     List<KaiutYoga.Models.PresenceModel> listpresencemodel = context.PresenceModels.ToList();
-    List<KaiutYoga.Models.StudentModel> liststudentmodel = context.StudentModels.Include("Classes").ToList();
 
     <script>
 
@@ -14,7 +13,6 @@
                     <text>
                     {
                         title: 'Loading...',
-                        amountWeeklyStudents: @classmodel.WeeklyStudents(liststudentmodel).Count,
                         capacity: @classmodel.Capacity,
                         start: '@classmodel.SelectedTime',
                         backgroundColor : '@classmodel.ClassColor()',

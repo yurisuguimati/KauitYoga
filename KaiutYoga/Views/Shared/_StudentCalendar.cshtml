@@ -6,7 +6,6 @@
     List<KaiutYoga.Models.ClassModel> listclassmodel = cm.GetClasses(context).ToList();
     List<KaiutYoga.Models.PresenceModel> listpresencemodel = context.PresenceModels.ToList();
     IEnumerable<IGrouping<DateTime, string>> listspareclassmodel = context.SpareClassModels.GroupBy(scm => scm.NewDate, scm => scm.GetMilliseconds).ToList();
-    List<KaiutYoga.Models.StudentModel> liststudentmodel = context.StudentModels.Include("Classes").Where(s => s.Active).ToList();
 
     <script>
         registerDate = new Date("@Model.ConvertRegisterDateToString()");
@@ -35,7 +34,7 @@
                         </text>
                     if (Model.Classes != null && Model.Classes.ToList().Exists(m => m.Id == classmodel.Id) && !Model.Plan.IsTrial)
                     {
-                            <text>
+                        <text>
                         selected: true,
                         weekly: true,
                         backgroundColor: weeklyClassesColor,
@@ -43,7 +42,7 @@
                     }
                     else
                     {
-                            <text>
+                        <text>
                         selected: false,
                         backgroundColor: anyClassColor
                         </text>
@@ -52,7 +51,7 @@
                     }
                     </text>
                     if (classmodel.Id != listclassmodel[listclassmodel.Count - 1].Id) {
-                    <text>,</text>
+                        <text>,</text>
                     }
                 }
             ]

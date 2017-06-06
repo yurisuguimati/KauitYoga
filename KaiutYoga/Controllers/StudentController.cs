@@ -189,7 +189,8 @@ namespace KaiutYoga.Controllers
                 List<SpareClassModel> replacementclasses = new List<SpareClassModel>();
                 if (sm.ReplacamentClasses != null)
                 {
-                    foreach (SpareClassModel scm in sm.ReplacamentClasses.Where(c=>c.NewDate >= DateTime.Now.AddMonths(-2)))
+                    // code to ignore spare classes older than 2 months, removed because it is meesing with history
+                    foreach (SpareClassModel scm in sm.ReplacamentClasses) //.Where(c=>c.NewDate >= DateTime.Now.AddMonths(-2)))
                     {
                         //if (lpm.Find(c=>c.ClassId == scm.NewClassId && c.Date == scm.NewDate) == null)
                             replacementclasses.Add(scm);
@@ -510,6 +511,7 @@ namespace KaiutYoga.Controllers
                     }
                 }
             }
+            
             return View(StudentModel);
         }
 
